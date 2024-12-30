@@ -1,0 +1,35 @@
+{
+  "name": "GalaxySpark-nextjs",
+  "version": "2.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "axios": "^1.7.7",
+    "bootstrap": "^5.3.3",
+    "framer": "^2.4.1",
+    "full_gs": "file:..",
+    "html-react-parser": "^5.1.8",
+    "lightgallery": "^2.7.2",
+    "next": "^14.2.17",
+    "react": "^18",
+    "react-dom": "^18",
+    "react-hook-form": "^7.54.2",
+    "react-hot-toast": "^2.4.1",
+    "react-intersection-observer": "^9.13.1",
+    "react-query": "^3.39.3",
+    "react-slick": "^0.30.2",
+    "sass": "^1.71.1",
+    "slick-carousel": "^1.8.1",
+    "swiper": "^8.4.5"
+  },
+  "devDependencies": {
+    "@iconify/react": "^4.1.1",
+    "eslint": "^8",
+    "eslint-config-next": "14.1.2"
+  }
+}
