@@ -4,6 +4,8 @@ import { useRef } from "react";
 import Sidebar from "../admin_componensts/layout/Sidebar";
 import Header from "../admin_componensts/layout/Header";
 import '../scss/style.scss';
+import 'bootstrap/dist/css/bootstrap.min.css';
+
 
 const RootLayout = ({ children }) => {
       const sidebarRef = useRef(null);
@@ -28,6 +30,9 @@ const RootLayout = ({ children }) => {
                               href="/images/faviconGS.png"
                               type="image/x-icon"
                         />
+                        <title>
+                              GalaxySpark | Admin Panel
+                        </title>
                   </head>
 
                   {/* Body */}
