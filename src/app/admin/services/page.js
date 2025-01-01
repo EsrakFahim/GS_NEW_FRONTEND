@@ -1,4 +1,4 @@
-import { AllProjects } from '@/app/admin_componensts/pages/AllProjects'
+import { TableContainer } from '@/app/admin_componensts/pages/TableContainer'
 import React from 'react'
 
 const page = () => {

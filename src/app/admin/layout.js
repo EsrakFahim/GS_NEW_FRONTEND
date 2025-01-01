@@ -5,6 +5,11 @@ import Sidebar from "../admin_componensts/layout/Sidebar";
 import Header from "../admin_componensts/layout/Header";
 import '../scss/style.scss';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import { QueryClient, QueryClientProvider } from "react-query";
+
+
+
+const queryClient = new QueryClient();
 
 
 const RootLayout = ({ children }) => {
@@ -37,13 +42,15 @@ const RootLayout = ({ children }) => {
 
                   {/* Body */}
                   <body>
-                        <div className="main-container">
-                              <Sidebar ref={sidebarRef} />
-                              <div className="main">
-                                    <Header sidebarRef={sidebarRef} />
-                                    {children}
+                        <QueryClientProvider client={queryClient}>
+                              <div className="main-container">
+                                    <Sidebar ref={sidebarRef} />
+                                    <div className="main">
+                                          <Header sidebarRef={sidebarRef} />
+                                          {children}
+                                    </div>
                               </div>
-                        </div>
+                        </QueryClientProvider>
                   </body>
             </html>
       );
