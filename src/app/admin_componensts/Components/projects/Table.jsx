@@ -1,3 +1,6 @@
+import { AiFillEdit } from "react-icons/ai";
+import { FaTrash } from "react-icons/fa";
+
 
 
 const Table = ({
@@ -22,10 +25,10 @@ const Table = ({
               <td>{item.serviceType || item?.projectType || item?.experience}</td>
               <td className="d-flex gap-1 flex-wrap">
                 <button className="btn btn-primary btn-sm">
-                  <i className="fa-solid fa-pen"></i>
+                  <AiFillEdit />
                 </button>
                 <button className="btn btn-danger btn-sm">
-                  <i className="fa-solid fa-trash"></i>
+                  <FaTrash />
                 </button>
               </td>
             </tr>
