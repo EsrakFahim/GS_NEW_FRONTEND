@@ -1,17 +1,31 @@
-import Table from '@/app/admin_componensts/Components/projects/Table'
+"use client";
+
+import useFetchDataFromDB from '@/API/FetchData';
+import { TableContainer } from '@/app/admin_componensts/pages/TableContainer'
+import Loader from '@/app/ui/Loader/Loader';
 import React from 'react'
 
 const page = () => {
-      return (
-            <div className="p-3">
-                  <div className="panel">
-                        <div className="panel-header border-bottom mb-3">All Team Members</div>
 
-                        <div className="panel-body p-3 pb-0">
-                              <Table />
-                        </div>
-                  </div>
-            </div>
+      const {
+            data: members,
+            isLoading,
+            isError,
+            error,
+            isFetching
+      } = useFetchDataFromDB("team-member")
+
+      if (isLoading) return <Loader />
+      if (isError) return <div>Error: {error.message}</div>
+      if (isFetching) return <Loader />
+
+
+      return (
+            <TableContainer
+                  title="All Team Member"
+                  tableHeader={["Name", "Bio", "Experience", "Actions"]}
+                  tableData={members?.data}
+            />
       )
 }
 

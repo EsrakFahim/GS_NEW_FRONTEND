@@ -17,9 +17,9 @@ const Table = ({
         <tbody>
           {tableData?.map((item, index) => (
             <tr key={index}>
-              <td>{item.name}</td>
-              <td>{item.description}</td>
-              <td>{item.type || item?.projectType}</td>
+              <td>{item.name || item?.title || item?.fullName}</td>
+              <td>{item.description || item?.bio}</td>
+              <td>{item.serviceType || item?.projectType || item?.experience}</td>
               <td className="d-flex gap-1 flex-wrap">
                 <button className="btn btn-primary btn-sm">
                   <i className="fa-solid fa-pen"></i>
