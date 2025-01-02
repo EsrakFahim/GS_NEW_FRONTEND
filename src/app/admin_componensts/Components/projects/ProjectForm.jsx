@@ -78,57 +78,58 @@ const ProjectForm = () => {
 
   const handleCreateProject = async (data) => {
     try {
-      // Creating FormData
+      // Create FormData instance
       const formData = new FormData();
-      formData.append("name", data.name);
-      formData.append("description", data.description);
-      formData.append("client", data.client);
-      formData.append("projectType", data.projectType);
-      formData.append("status", data.status);
-      formData.append("startDate", data.startDate || null);
-      formData.append("endDate", data.endDate || null);
-      formData.append("projectManager", projectManager);
-      formData.append("budget", data.budget || 0);
-      formData.append("spent", data.spent || 0);
-      formData.append("livePreview", data.livePreview || "");
-      formData.append("sourceFile", data.sourceFile || "");
-      formData.append("isActive", data.isActive || false);
 
-      // Adding team members and tech as comma-separated values
-      formData.append("team", data.team.split(",").map((member) => member.trim()).join(","));
-      formData.append("tech", data.tech.split(",").map((tech) => tech.trim()).join(","));
-      formData.append(
-        "team",
-        data.team
-          .split(",")
-          .map((member) => member.trim())
-          .join(",")
-      );
-      formData.append(
-        "tech",
-        data.tech
-          .split(",")
-          .map((tech) => tech.trim())
-          .join(",")
-      );
-      formData.append("notes", data.notes || "");
+      // Append form fields to FormData
+      const fields = {
+        name: data.name,
+        description: data.description,
+        client: data.client,
+        projectType: data.projectType,
+        status: data.status,
+        startDate: data.startDate || null,
+        endDate: data.endDate || null,
+        projectManager: projectManager,
+        budget: data.budget || 0,
+        spent: data.spent || 0,
+        livePreview: data.livePreview || "",
+        sourceFile: data.sourceFile || "",
+        isActive: data.isActive || false,
+        team: Array.isArray(team) ? team.join(",") : team || "", // Ensure `team` is valid
+        tech: Array.isArray(tech) ? tech.join(",") : tech || "", // Ensure `tech` is valid
+        notes: data.notes || "",
+      };
 
-      // Appending files
-      if (data.files.length > 0) {
-        Array.from(data.files).forEach((file) => {
-          formData.append("files", file);
-        });
+      // Append fields to FormData
+      Object.entries(fields).forEach(([key, value]) => {
+        formData.append(key, value);
+      });
+
+      // Append files (if any)
+      if (data.files && data.files.length > 0) {
+        Array.from(data.files).forEach((file) => formData.append("files", file));
       }
 
-      // Making API request with FormData
-      await createProject(formData);
+      // Debugging: Log FormData contents
+      for (const [key, value] of formData.entries()) {
+        console.log(`${key}: ${value}`);
+      }
+
+      console.log("Form data ready for submission:", formData);
+
+      // Submit FormData to API
+      // await createProject(formData);
+
       toast.success("Project created successfully!");
       reset();
     } catch (error) {
-      console.log("Error creating project:", error);
+      console.error("Error creating project:", error);
       toast.error("Failed to create project. Please try again.");
     }
   };
+
+
 
 
   return (
@@ -145,6 +146,7 @@ const ProjectForm = () => {
                 </label>
                 <div className="col-lg-9">
                   <input
+                    autoComplete="off"
                     type="text"
                     id="name"
                     className="form-control"
@@ -192,6 +194,7 @@ const ProjectForm = () => {
                 <div className="col-lg-9">
                   <input
                     type="text"
+                    autoComplete="off"
                     id="client"
                     className="form-control"
                     placeholder="Client Name"
@@ -295,6 +298,7 @@ const ProjectForm = () => {
                   <div key={index} className="d-flex align-items-center mb-2">
                     <Form.Control
                       type="text"
+                      autoComplete="off"
                       placeholder={`Project Managers ${index + 1}`}
                       value={service}
                       onChange={(e) => handleProjectManagerChange(index, e.target.value)}
@@ -321,6 +325,7 @@ const ProjectForm = () => {
                   <div key={index} className="d-flex align-items-center mb-2">
                     <Form.Control
                       type="text"
+                      autoComplete="off"
                       placeholder={`Team Member ${index + 1}`}
                       value={service}
                       onChange={(e) => handleTeamMemberChange(index, e.target.value)}
@@ -381,6 +386,7 @@ const ProjectForm = () => {
                   <div key={index} className="d-flex align-items-center mb-2">
                     <Form.Control
                       type="text"
+                      autoComplete="off"
                       placeholder={`Tech ${index + 1}`}
                       value={service}
                       onChange={(e) => handleTechChange(index, e.target.value)}
@@ -425,6 +431,7 @@ const ProjectForm = () => {
                 <div className="col-lg-9">
                   <input
                     type="url"
+                    autoComplete="off"
                     id="livePreview"
                     className="form-control"
                     placeholder="https://example.com"
@@ -452,6 +459,7 @@ const ProjectForm = () => {
                 <div className="col-lg-9">
                   <input
                     type="url"
+                    autoComplete="off"
                     id="sourceFile"
                     className="form-control"
                     placeholder="https://example.com"
