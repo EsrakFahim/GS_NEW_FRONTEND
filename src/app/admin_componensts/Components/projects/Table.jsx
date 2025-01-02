@@ -11,7 +11,7 @@ const Table = ({
   const handleAction = ({ action, id }) => {
     switch (action) {
       case "edit":
-        router.push(`/admin/projects/edit?id=${id}`);
+        router.push(`/admin/projects/edit/${id}`);
         break;
       case "delete":
         console.log("Delete", id);
