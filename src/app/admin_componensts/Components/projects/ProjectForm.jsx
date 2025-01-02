@@ -1,20 +1,82 @@
 "use client";
 
 // eslint-disable-next-line no-unused-vars
-import React from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import toast, { Toaster } from "react-hot-toast";
 import { createProject } from "../../../../API/admin.api";
+import { Form, Button } from "react-bootstrap";
+
 
 const ProjectForm = () => {
+  const [projectManager, setProjectManager] = useState([""]);
+  const [team, setTeam] = useState([""]);
+  const [tech, setTech] = useState([""]);
+
   const {
     register,
     handleSubmit,
     formState: { errors },
+    setValue,
     reset,
   } = useForm();
 
-  const onSubmit = async (data) => {
+  // Add Project Manager Field
+  const addProjectManagerField = () => {
+    setProjectManager([...projectManager, ""]);
+  };
+
+  const handleProjectManagerChange = (index, value) => {
+    const updatedProjectManager = [...projectManager];
+    updatedProjectManager[index] = value;
+    setProjectManager(updatedProjectManager);
+    setValue("projectManager", updatedProjectManager); // Update form value
+  };
+
+  const removeProjectManager = (index) => {
+    const updatedProjectManager = projectManager.filter((_, i) => i !== index);
+    setProjectManager(updatedProjectManager);
+    setValue("projectManager", updatedProjectManager); // Update form value
+  };
+
+  // Add Team Member Field
+  const addTeamMemberField = () => {
+    setTeam([...team, ""]);
+  };
+
+  const handleTeamMemberChange = (index, value) => {
+    const updatedTeam = [...team];
+    updatedTeam[index] = value;
+    setTeam(updatedTeam);
+    setValue("includingServices", updatedTeam); // Update form value
+  };
+
+  const removeTeamMemberField = (index) => {
+    const updatedTeam = team.filter((_, i) => i !== index);
+    setTeam(updatedTeam);
+    setValue("includingServices", updatedTeam); // Update form value
+  };
+
+  // Add Tech Field
+  const addTechField = () => {
+    setTech([...tech, ""]);
+  };
+
+  const handleTechChange = (index, value) => {
+    const updatedTech = [...tech];
+    updatedTech[index] = value;
+    setTech(updatedTech);
+    setValue("tech", updatedTech); // Update form value
+  };
+
+  const removeTechField = (index) => {
+    const updatedTech = tech.filter((_, i) => i !== index);
+    setTech(updatedTech);
+    setValue("tech", updatedTech); // Update form value
+  };
+
+
+  const handleCreateProject = async (data) => {
     try {
       // Creating FormData
       const formData = new FormData();
@@ -25,7 +87,7 @@ const ProjectForm = () => {
       formData.append("status", data.status);
       formData.append("startDate", data.startDate || null);
       formData.append("endDate", data.endDate || null);
-      formData.append("projectManager", data.projectManager);
+      formData.append("projectManager", projectManager);
       formData.append("budget", data.budget || 0);
       formData.append("spent", data.spent || 0);
       formData.append("livePreview", data.livePreview || "");
@@ -72,7 +134,7 @@ const ProjectForm = () => {
   return (
     <div>
       <Toaster position="bottom-center" reverseOrder={false} />
-      <form onSubmit={handleSubmit(onSubmit)}>
+      <form onSubmit={handleSubmit(handleCreateProject)}>
         <div className="panel-body p-4">
           <div className="row">
             <div className="col-xl-8">
@@ -227,46 +289,56 @@ const ProjectForm = () => {
               </div>
 
               {/* Project Manager */}
-              <div className="row mb-3">
-                <label
-                  htmlFor="projectManager"
-                  className="col-form-label col-lg-3 "
-                >
-                  Project Manager <span style={{ color: "red" }}>*</span>
-                </label>
-                <div className="col-lg-9">
-                  <input
-                    type="text"
-                    id="projectManager"
-                    className="form-control"
-                    placeholder="Project Manager Name"
-                    {...register("projectManager", {
-                      required: "Project manager is required",
-                    })}
-                  />
-                  {errors.projectManager && (
-                    <p style={{ color: "red" }}>
-                      {errors.projectManager.message}
-                    </p>
-                  )}
-                </div>
-              </div>
+              <Form.Group className="mb-3">
+                <Form.Label>Project Managers</Form.Label>
+                {projectManager.map((service, index) => (
+                  <div key={index} className="d-flex align-items-center mb-2">
+                    <Form.Control
+                      type="text"
+                      placeholder={`Project Managers ${index + 1}`}
+                      value={service}
+                      onChange={(e) => handleProjectManagerChange(index, e.target.value)}
+                      className="me-2"
+                    />
+                    <Button
+                      variant="danger"
+                      onClick={() => removeProjectManager(index)}
+                      disabled={projectManager.length === 1}
+                    >
+                      Remove
+                    </Button>
+                  </div>
+                ))}
+                <Button variant="success" onClick={addProjectManagerField}>
+                  Add more
+                </Button>
+              </Form.Group>
 
               {/* Team */}
-              <div className="row mb-3">
-                <label htmlFor="team" className="col-form-label col-lg-3 ">
-                  Team Members (comma-separated)
-                </label>
-                <div className="col-lg-9">
-                  <input
-                    type="text"
-                    id="team"
-                    className="form-control"
-                    placeholder="e.g., Alice, Bob, Charlie"
-                    {...register("team")}
-                  />
-                </div>
-              </div>
+              <Form.Group className="mb-3">
+                <Form.Label>Team Member</Form.Label>
+                {team.map((service, index) => (
+                  <div key={index} className="d-flex align-items-center mb-2">
+                    <Form.Control
+                      type="text"
+                      placeholder={`Team Member ${index + 1}`}
+                      value={service}
+                      onChange={(e) => handleTeamMemberChange(index, e.target.value)}
+                      className="me-2"
+                    />
+                    <Button
+                      variant="danger"
+                      onClick={() => removeTeamMemberField(index)}
+                      disabled={team.length === 1}
+                    >
+                      Remove
+                    </Button>
+                  </div>
+                ))}
+                <Button variant="success" onClick={addTeamMemberField}>
+                  Add more
+                </Button>
+              </Form.Group>
 
               {/* Budget */}
               <div className="row mb-3">
@@ -303,20 +375,30 @@ const ProjectForm = () => {
               </div>
 
               {/* Technologies */}
-              <div className="row mb-3">
-                <label htmlFor="tech" className="col-form-label col-lg-3 ">
-                  Technologies (comma-separated)
-                </label>
-                <div className="col-lg-9">
-                  <input
-                    type="text"
-                    id="tech"
-                    className="form-control"
-                    placeholder="e.g., React, Node.js, MongoDB"
-                    {...register("tech")}
-                  />
-                </div>
-              </div>
+              <Form.Group className="mb-3">
+                <Form.Label>Tech uses</Form.Label>
+                {tech.map((service, index) => (
+                  <div key={index} className="d-flex align-items-center mb-2">
+                    <Form.Control
+                      type="text"
+                      placeholder={`Tech ${index + 1}`}
+                      value={service}
+                      onChange={(e) => handleTechChange(index, e.target.value)}
+                      className="me-2"
+                    />
+                    <Button
+                      variant="danger"
+                      onClick={() => removeTechField(index)}
+                      disabled={tech.length === 1}
+                    >
+                      Remove
+                    </Button>
+                  </div>
+                ))}
+                <Button variant="success" onClick={addTechField}>
+                  Add more
+                </Button>
+              </Form.Group>
 
               {/* Notes */}
               <div className="row mb-3">
