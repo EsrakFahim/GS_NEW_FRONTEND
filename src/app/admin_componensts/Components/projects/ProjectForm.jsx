@@ -1,17 +1,19 @@
 "use client";
 
 // eslint-disable-next-line no-unused-vars
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import toast, { Toaster } from "react-hot-toast";
 import { createProject } from "../../../../API/admin.api";
 import { Form, Button } from "react-bootstrap";
 
 
-const ProjectForm = () => {
-  const [projectManager, setProjectManager] = useState([""]);
-  const [team, setTeam] = useState([""]);
-  const [tech, setTech] = useState([""]);
+const ProjectForm = ({ initialData, operation }) => {
+  const [projectManager, setProjectManager] = useState([]);
+  const [team, setTeam] = useState([]);
+  const [tech, setTech] = useState([]);
+
+  console.log("Initial Data:", initialData);
 
   const {
     register,
@@ -20,6 +22,35 @@ const ProjectForm = () => {
     setValue,
     reset,
   } = useForm();
+
+  console.log(projectManager, team, tech);
+
+  useEffect(() => {
+    if (initialData) {
+      // Set initial form values
+      Object.entries(initialData).forEach(([key, value]) => {
+        setValue(key, value);
+      });
+
+      // Set initial project manager
+      if (initialData.projectManager) {
+        setProjectManager(initialData.projectManager);
+      }
+
+      // Set initial team
+      if (initialData.team) {
+
+        setTeam(initialData.team);
+      }
+
+      // Set initial tech
+      if (initialData.tech) {
+        setTech(initialData.tech);
+      }
+
+    }
+  }, [initialData, setValue]);
+
 
   // Add Project Manager Field
   const addProjectManagerField = () => {
@@ -77,6 +108,8 @@ const ProjectForm = () => {
 
 
   const handleCreateProject = async (data) => {
+
+    console.log("Data:", data);
     try {
       // Create FormData instance
       const formData = new FormData();
@@ -90,14 +123,14 @@ const ProjectForm = () => {
         status: data.status,
         startDate: data.startDate || null,
         endDate: data.endDate || null,
-        projectManager: projectManager,
+        projectManager: projectManager || [], // Ensure `projectManager` is valid
         budget: data.budget || 0,
         spent: data.spent || 0,
         livePreview: data.livePreview || "",
         sourceFile: data.sourceFile || "",
         isActive: data.isActive || false,
-        team: Array.isArray(team) ? team.join(",") : team || "", // Ensure `team` is valid
-        tech: Array.isArray(tech) ? tech.join(",") : tech || "", // Ensure `tech` is valid
+        team: team || [], // Ensure `team` is valid
+        tech: tech || [], // Ensure `tech` is valid
         notes: data.notes || "",
       };
 
@@ -119,7 +152,7 @@ const ProjectForm = () => {
       console.log("Form data ready for submission:", formData);
 
       // Submit FormData to API
-      // await createProject(formData);
+      await createProject(formData);
 
       toast.success("Project created successfully!");
       reset();
@@ -129,13 +162,31 @@ const ProjectForm = () => {
     }
   };
 
+  const handleEditProject = async (data) => {
+    try {
+      // Create FormData instance
+    } catch (error) {
+      console.error("Error editing project:", error);
+      toast.error("Failed to edit project. Please try again.");
+    }
+  };
+
+
+
+  const handleEditingOptions = async (data) => {
+    if (operation === "edit") {
+      await handleEditProject(data);
+    } else {
+      await handleCreateProject(data);
+    }
+  }
 
 
 
   return (
     <div>
       <Toaster position="bottom-center" reverseOrder={false} />
-      <form onSubmit={handleSubmit(handleCreateProject)}>
+      <form onSubmit={handleSubmit(handleEditingOptions)}>
         <div className="panel-body p-4">
           <div className="row">
             <div className="col-xl-8">
@@ -149,6 +200,7 @@ const ProjectForm = () => {
                     autoComplete="off"
                     type="text"
                     id="name"
+                    defaultValue={initialData?.name}
                     className="form-control"
                     placeholder="Project Name"
                     {...register("name", {
@@ -173,6 +225,7 @@ const ProjectForm = () => {
                 <div className="col-lg-9">
                   <textarea
                     id="description"
+                    defaultValue={initialData?.description}
                     className="form-control"
                     placeholder="Project Description"
                     {...register("description", {
@@ -194,6 +247,7 @@ const ProjectForm = () => {
                 <div className="col-lg-9">
                   <input
                     type="text"
+                    defaultValue={initialData?.client}
                     autoComplete="off"
                     id="client"
                     className="form-control"
@@ -217,6 +271,7 @@ const ProjectForm = () => {
                 <div className="col-lg-9">
                   <select
                     id="projectType"
+                    defaultValue={initialData?.projectType}
                     className="form-select"
                     {...register("projectType", {
                       required: "Project type is required",
@@ -245,6 +300,7 @@ const ProjectForm = () => {
                 <div className="col-lg-9">
                   <select
                     id="status"
+                    defaultValue={initialData?.status}
                     className="form-select"
                     {...register("status", { required: "Status is required" })}
                   >
@@ -270,6 +326,7 @@ const ProjectForm = () => {
                   <input
                     type="date"
                     id="startDate"
+                    defaultValue={initialData?.startDate}
                     className="form-control"
                     {...register("startDate")}
                   />
@@ -285,6 +342,7 @@ const ProjectForm = () => {
                   <input
                     type="date"
                     id="endDate"
+                    defaultValue={initialData?.endDate}
                     className="form-control"
                     {...register("endDate")}
                   />
@@ -294,7 +352,7 @@ const ProjectForm = () => {
               {/* Project Manager */}
               <Form.Group className="mb-3">
                 <Form.Label>Project Managers</Form.Label>
-                {projectManager.map((service, index) => (
+                {projectManager?.map((service, index) => (
                   <div key={index} className="d-flex align-items-center mb-2">
                     <Form.Control
                       type="text"
@@ -321,7 +379,7 @@ const ProjectForm = () => {
               {/* Team */}
               <Form.Group className="mb-3">
                 <Form.Label>Team Member</Form.Label>
-                {team.map((service, index) => (
+                {team?.map((service, index) => (
                   <div key={index} className="d-flex align-items-center mb-2">
                     <Form.Control
                       type="text"
@@ -354,6 +412,7 @@ const ProjectForm = () => {
                   <input
                     type="number"
                     id="budget"
+                    defaultValue={initialData?.budget}
                     className="form-control"
                     placeholder="0"
                     min="0"
@@ -371,6 +430,7 @@ const ProjectForm = () => {
                   <input
                     type="number"
                     id="spent"
+                    defaultValue={initialData?.spent}
                     className="form-control"
                     placeholder="0"
                     min="0"
@@ -382,7 +442,7 @@ const ProjectForm = () => {
               {/* Technologies */}
               <Form.Group className="mb-3">
                 <Form.Label>Tech uses</Form.Label>
-                {tech.map((service, index) => (
+                {tech?.map((service, index) => (
                   <div key={index} className="d-flex align-items-center mb-2">
                     <Form.Control
                       type="text"
@@ -414,6 +474,7 @@ const ProjectForm = () => {
                 <div className="col-lg-9">
                   <textarea
                     id="notes"
+                    defaultValue={initialData?.notes}
                     className="form-control"
                     {...register("notes")}
                   ></textarea>
@@ -431,6 +492,7 @@ const ProjectForm = () => {
                 <div className="col-lg-9">
                   <input
                     type="url"
+                    defaultValue={initialData?.livePreview}
                     autoComplete="off"
                     id="livePreview"
                     className="form-control"
@@ -462,6 +524,7 @@ const ProjectForm = () => {
                     autoComplete="off"
                     id="sourceFile"
                     className="form-control"
+                    defaultValue={initialData?.sourceFile}
                     placeholder="https://example.com"
                     {...register("sourceFile", {
                       pattern: {
@@ -484,6 +547,7 @@ const ProjectForm = () => {
                 <div className="col-lg-9">
                   <input
                     type="checkbox"
+                    defaultChecked={initialData?.isActive}
                     id="isActive"
                     {...register("isActive")}
                   />
@@ -509,7 +573,9 @@ const ProjectForm = () => {
               <div className="row mb-3">
                 <div className="col-lg-9 offset-lg-3">
                   <button type="submit" className="btn btn-primary">
-                    Create Project
+                    {
+                      operation === "edit" ? "Edit Project" : "Create Project"
+                    }
                   </button>
                 </div>
               </div>
