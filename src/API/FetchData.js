@@ -19,4 +19,4 @@ const useFetchDataFromDB = (collection) => {
       return { data, isError, isLoading };
 };
 
-export default useFetchDataFromDB;
+export { useFetchDataFromDB };

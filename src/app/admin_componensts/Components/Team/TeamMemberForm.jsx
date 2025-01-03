@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import toast, { Toaster } from "react-hot-toast";
 import { addTeamMember } from "../../../../API/admin.api";
 import Image from "next/image";
-import updateTeamMember from "@/API/updateData.api";
+import updateData from "@/API/updateData.api";
 
 const TeamMemberForm = (
   {
@@ -96,7 +96,7 @@ const TeamMemberForm = (
         formData.append("avatar", data.avatar[0]);
       }
 
-      const teamData  = await updateTeamMember(initialData?._id, formData, services); // Implement this function
+      const teamData  = await updateData(initialData?._id, formData, services); // Implement this function
 
       console.log("Update successful:", teamData);
 

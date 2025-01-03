@@ -4,9 +4,13 @@ import React from "react";
 import toast, { Toaster } from "react-hot-toast";
 import { useForm } from 'react-hook-form';
 import { createHomepage } from "../../../API/admin.api";
+import { useFetchDataFromDB } from "@/API/FetchData";
+import updatePageData from "@/API/updatePageData.api";
 
 
 const HomePageForm = () => {
+  const { data, isLoading, isError } = useFetchDataFromDB('home-page');
+
   const {
     register,
     handleSubmit,
@@ -14,7 +18,7 @@ const HomePageForm = () => {
     reset,
   } = useForm();
 
-  const onSubmit = async (data) => {
+  const createHomepageEntry = async (data) => {
     try {
       // Creating FormData instance
       const formData = new FormData();
@@ -34,7 +38,7 @@ const HomePageForm = () => {
       if (data.bannerImageFile.length > 0) {
         formData.append("bannerImage", data.bannerImageFile[0]);
       }
-      
+
       await createHomepage(formData);
       toast.success("Home page entry created successfully!");
       reset();
@@ -43,6 +47,54 @@ const HomePageForm = () => {
       toast.error("Failed to create home page entry. Please try again.");
     }
   };
+
+  const editHomepageEntry = async (data) => {
+    try {
+      // Creating FormData instance
+      const formData = new FormData();
+      formData.append("title", data.title);
+      formData.append("subTitle", data.subTitle);
+      formData.append("videoText", data.videoText);
+      formData.append("isActive", data.isActive || false);
+
+      // Appending call to action fields
+      formData.append("callToAction.text", data.callToActionText || "");
+      formData.append("callToAction.url", data.callToActionUrl || "");
+
+      // Appending file uploads
+      if (data.videoFile.length > 0) {
+        formData.append("video", data.videoFile[0]);
+      }
+
+
+      if (data.bannerImageFile.length > 0) {
+        formData.append("bannerImage", data.bannerImageFile[0]);
+      }
+
+      await updatePageData(formData, 'home-page');
+      toast.success("Home page entry updated successfully!");
+      reset();
+    } catch (error) {
+      console.log("Error updating home page entry:", error);
+      toast.error("Failed to update home page entry. Please try again.");
+    }
+  };
+
+
+  const onSubmit = async (data) => {
+    if (data) {
+      console.log("edit");
+      await editHomepageEntry(data);
+    } else {
+      console.log("create");
+      await createHomepageEntry(data);
+    }
+  }
+
+  if (isLoading) return <div>Loading...</div>;
+  if (isError) return <div>Error: {isError.message}</div>;
+
+
 
   return (
     <div>
@@ -60,6 +112,7 @@ const HomePageForm = () => {
                   <input
                     type="text"
                     id="title"
+                    defaultValue={data?.data[0]?.title}
                     className="form-control"
                     placeholder="Title"
                     {...register("title", {
@@ -82,6 +135,7 @@ const HomePageForm = () => {
                   <input
                     type="text"
                     id="subTitle"
+                    defaultValue={data?.data[0]?.subTitle}
                     className="form-control"
                     placeholder="SubTitle"
                     {...register("subTitle", {
@@ -104,6 +158,7 @@ const HomePageForm = () => {
                   <input
                     type="text"
                     id="videoText"
+                    defaultValue={data?.data[0]?.videoText}
                     className="form-control"
                     placeholder="Video Text"
                     {...register("videoText", {
@@ -120,12 +175,13 @@ const HomePageForm = () => {
               {/* Video File */}
               <div className="row mb-3">
                 <label htmlFor="videoFile" className="col-form-label col-lg-3">
-                  Video File <span style={{ color: "red" }}>*</span>
+                  Video URL <span style={{ color: "red" }}>*</span>
                 </label>
                 <div className="col-lg-9">
                   <input
-                    type="file"
+                    type="url"
                     id="videoFile"
+                    defaultValue={data?.data[0]?.videoFile}
                     className="form-control"
                     {...register("videoFile", {
                       required: "Video file is required",
@@ -151,7 +207,7 @@ const HomePageForm = () => {
                     id="bannerImageFile"
                     className="form-control"
                     {...register("bannerImageFile", {
-                      required: "Banner image is required",
+                      // required: "Banner image is required",
                     })}
                   />
                   {errors.bannerImageFile && (
@@ -174,6 +230,7 @@ const HomePageForm = () => {
                   <input
                     type="text"
                     id="callToActionText"
+                    defaultValue={data?.data[0]?.callToAction?.text}
                     className="form-control"
                     placeholder="Call to Action Text"
                     {...register("callToActionText", { maxLength: 50 })}
@@ -199,6 +256,7 @@ const HomePageForm = () => {
                     type="url"
                     id="callToActionUrl"
                     className="form-control"
+                    defaultValue={data?.data[0]?.callToAction?.url}
                     placeholder="https://example.com"
                     {...register("callToActionUrl", {
                       pattern: {
@@ -223,6 +281,7 @@ const HomePageForm = () => {
                 <div className="col-lg-9">
                   <input
                     type="checkbox"
+                    defaultChecked={data?.isActive}
                     id="isActive"
                     {...register("isActive")}
                   />

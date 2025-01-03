@@ -1,21 +1,44 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Form, Button } from "react-bootstrap";
+import { useFetchDataFromDB } from "@/API/FetchData";
 
 const Page = () => {
+      const [benefits, setBenefits] = useState([""]);
       const {
             register,
             handleSubmit,
+            setValue,
+            reset,
             formState: { errors },
       } = useForm();
 
-      const [benefits, setBenefits] = useState([""]);
+      const { data, isError, isLoading } = useFetchDataFromDB("about-page");
 
-      const handleAddBenefit = () => {
-            setBenefits([...benefits, ""]);
-      };
+      useEffect(() => {
+            if (data) {
+                  const {
+                        title,
+                        description,
+                        whyWeTitle,
+                        whyWeDescription,
+                        isActive,
+                        benefits,
+                  } = data.data[0];
+
+                  // Populate form fields with existing data
+                  setValue("title", title);
+                  setValue("description", description);
+                  setValue("whyWeTitle", whyWeTitle);
+                  setValue("whyWeDescription", whyWeDescription);
+                  setValue("isActive", isActive);
+                  setBenefits(benefits);
+            }
+      }, [data, setValue]);
+
+      const handleAddBenefit = () => setBenefits([...benefits, ""]);
 
       const handleRemoveBenefit = (index) => {
             const updatedBenefits = benefits.filter((_, i) => i !== index);
@@ -28,15 +51,42 @@ const Page = () => {
             setBenefits(updatedBenefits);
       };
 
-      const onSubmit = (data) => {
-            data.benefits = benefits;
-            console.log(data);
-            // Handle form submission
+      const onSubmit = (formData) => {
+            formData.benefits = benefits;
+            console.log("Form submitted:", formData);
+            // Handle create or update logic here (e.g., API calls)
       };
+
+      const renderBenefitsFields = () => (
+            <Form.Group className="mb-3">
+                  <Form.Label>Benefits</Form.Label>
+                  {benefits.map((benefit, index) => (
+                        <div key={index} className="d-flex align-items-center mb-2">
+                              <Form.Control
+                                    type="text"
+                                    value={benefit}
+                                    onChange={(e) => handleBenefitChange(index, e.target.value)}
+                                    placeholder={`Benefit ${index + 1}`}
+                                    className="me-2"
+                              />
+                              <Button
+                                    variant="danger"
+                                    onClick={() => handleRemoveBenefit(index)}
+                                    disabled={benefits.length === 1}
+                              >
+                                    Remove
+                              </Button>
+                        </div>
+                  ))}
+                  <Button variant="secondary" onClick={handleAddBenefit} className="mt-2">
+                        Add Benefit
+                  </Button>
+            </Form.Group>
+      );
 
       return (
             <Form onSubmit={handleSubmit(onSubmit)} className="p-4 border rounded">
-                  <h3>Create About Page</h3>
+                  <h3>{data ? "Update About Page" : "Create About Page"}</h3>
 
                   <Form.Group className="mb-3">
                         <Form.Label>Title</Form.Label>
@@ -56,9 +106,7 @@ const Page = () => {
                               {...register("description", { required: "Description is required" })}
                               placeholder="Enter description"
                         />
-                        {errors.description && (
-                              <small className="text-danger">{errors.description.message}</small>
-                        )}
+                        {errors.description && <small className="text-danger">{errors.description.message}</small>}
                   </Form.Group>
 
                   <Form.Group className="mb-3">
@@ -107,37 +155,18 @@ const Page = () => {
                         )}
                   </Form.Group>
 
-                  <Form.Group className="mb-3">
-                        <Form.Label>Benefits</Form.Label>
-                        {benefits.map((benefit, index) => (
-                              <div key={index} className="d-flex align-items-center mb-2">
-                                    <Form.Control
-                                          type="text"
-                                          value={benefit}
-                                          onChange={(e) => handleBenefitChange(index, e.target.value)}
-                                          placeholder={`Benefit ${index + 1}`}
-                                          className="me-2"
-                                    />
-                                    <Button
-                                          variant="danger"
-                                          onClick={() => handleRemoveBenefit(index)}
-                                          disabled={benefits.length === 1}
-                                    >
-                                          Remove
-                                    </Button>
-                              </div>
-                        ))}
-                        <Button variant="secondary" onClick={handleAddBenefit} className="mt-2">
-                              Add Benefit
-                        </Button>
-                  </Form.Group>
+                  {renderBenefitsFields()}
 
                   <Form.Group className="mb-3">
-                        <Form.Check type="checkbox" label="Is Active" {...register("isActive")} />
+                        <Form.Check
+                              type="checkbox"
+                              label="Is Active"
+                              {...register("isActive")}
+                        />
                   </Form.Group>
 
-                  <Button variant="primary" type="submit">
-                        Submit
+                  <Button variant="primary" type="submit" disabled={isLoading}>
+                        {isLoading ? "Loading..." : "Submit"}
                   </Button>
             </Form>
       );
