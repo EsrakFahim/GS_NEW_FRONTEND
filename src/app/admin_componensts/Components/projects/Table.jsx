@@ -13,7 +13,7 @@ const Table = ({
   const handleAction = async ({ action, id }) => {
     switch (action) {
       case "edit":
-        router.push(`/admin/projects/edit/${id}`);
+        router.push(`/admin/${rootPath}/edit/${id}`);
         break;
       case "delete":
         console.log("Delete", id);

@@ -4,8 +4,15 @@ import React from "react";
 import { useForm } from "react-hook-form";
 import toast, { Toaster } from "react-hot-toast";
 import { addTeamMember } from "../../../../API/admin.api";
+import Image from "next/image";
+import updateTeamMember from "@/API/updateData.api";
 
-const TeamMemberForm = () => {
+const TeamMemberForm = (
+  {
+    initialData,
+    operation,
+  }
+) => {
   const {
     register,
     handleSubmit,
@@ -13,7 +20,9 @@ const TeamMemberForm = () => {
     reset,
   } = useForm();
 
-  const onSubmit = async (data) => {
+
+  // Handle add team member
+  const handleUploadMember = async (data) => {
     try {
       // Create FormData for file uploads
       const formData = new FormData();
@@ -52,6 +61,61 @@ const TeamMemberForm = () => {
       console.error("Error adding team member:", error);
       toast.error("Failed to add team member. Please try again.");
     }
+  }
+
+  // Handle edit team member
+  const handleEditMember = async (data) => {
+    try {
+      // Create FormData for file uploads
+      const formData = new FormData();
+      formData.append("fullName", data.fullName);
+      formData.append("jobTitle", data.jobTitle);
+      formData.append("bio", data.bio);
+      formData.append("description", data.description);
+      formData.append("experience", data.experience || "0 years");
+
+      // Append social links if provided
+      [
+        "facebook",
+        "instagram",
+        "twitter",
+        "linkedin",
+        "pinterest",
+        "upwork",
+        "behance",
+        "github",
+        "fiverr",
+      ].forEach((platform) => {
+        if (data[platform]) {
+          formData.append(`socialLinks.${platform}`, data[platform]);
+        }
+      });
+
+      // Append avatar file if uploaded
+      if (data?.avatar?.length > 0) {
+        formData.append("avatar", data.avatar[0]);
+      }
+
+      const teamData  = await updateTeamMember(initialData?._id, formData, services); // Implement this function
+
+      console.log("Update successful:", teamData);
+
+      toast.success("Team member updated successfully!");
+      reset();
+    } catch (error) {
+      console.error("Error updating team member:", error);
+      toast.error("Failed to update team member. Please try again.");
+    }
+  }
+
+  const onSubmit = async (data) => {
+    if (operation === "edit") {
+      // Handle edit team member
+      await handleEditMember(data);
+    } else {
+      // Handle add team member
+      await handleUploadMember(data);
+    }
   };
 
   return (
@@ -70,6 +134,7 @@ const TeamMemberForm = () => {
                   <input
                     type="text"
                     id="fullName"
+                    defaultValue={initialData?.fullName}
                     className="form-control"
                     placeholder="Full Name"
                     {...register("fullName", {
@@ -92,6 +157,7 @@ const TeamMemberForm = () => {
                   <input
                     type="text"
                     id="jobTitle"
+                    defaultValue={initialData?.jobTitle}
                     className="form-control"
                     placeholder="Job Title"
                     {...register("jobTitle", {
@@ -114,6 +180,7 @@ const TeamMemberForm = () => {
                   <textarea
                     id="bio"
                     className="form-control"
+                    defaultValue={initialData?.bio}
                     placeholder="Bio"
                     {...register("bio", {
                       required: "Bio is required",
@@ -137,6 +204,7 @@ const TeamMemberForm = () => {
                 <div className="col-lg-9">
                   <textarea
                     id="description"
+                    defaultValue={initialData?.description}
                     className="form-control"
                     placeholder="Description"
                     {...register("description", {
@@ -151,21 +219,35 @@ const TeamMemberForm = () => {
               </div>
 
               {/* Avatar */}
-              <div className="row mb-3">
+              <div className=" mb-3" style={{ display: "flex" }}>
                 <label htmlFor="avatar" className="col-form-label col-lg-3">
                   Avatar <span style={{ color: "red" }}>*</span>
                 </label>
-                <div className="col-lg-9">
-                  <input
-                    type="file"
-                    id="avatar"
-                    className="form-control"
-                    {...register("avatar", { required: "Avatar is required" })}
-                  />
-                  {errors.avatar && (
-                    <p style={{ color: "red" }}>{errors.avatar.message}</p>
-                  )}
-                </div>
+                {
+
+                  initialData?.avatar ?
+                    <div>
+                      <Image
+                        src={initialData?.avatar}
+                        alt="Avatar"
+                        width={100}
+                        height={100}
+                        style={{ borderRadius: "50%" }}
+                      />
+                    </div>
+                    :
+                    <div className="col-lg-9">
+                      <input
+                        type="file"
+                        id="avatar"
+                        className="form-control"
+                        {...register("avatar", { required: "Avatar is required" })}
+                      />
+                      {errors.avatar && (
+                        <p style={{ color: "red" }}>{errors.avatar.message}</p>
+                      )}
+                    </div>
+                }
               </div>
 
               {/* Social Links */}
@@ -188,6 +270,7 @@ const TeamMemberForm = () => {
                     <input
                       type="url"
                       id={platform}
+                      defaultValue={initialData?.socialLinks[platform]}
                       className="form-control"
                       placeholder={`https://www.${platform}.com/username`}
                       {...register(platform, {
@@ -212,6 +295,7 @@ const TeamMemberForm = () => {
                 <div className="col-lg-9">
                   <input
                     type="text"
+                    defaultValue={initialData?.experience}
                     id="experience"
                     className="form-control"
                     placeholder="Experience (e.g., 5 years)"
@@ -224,7 +308,11 @@ const TeamMemberForm = () => {
               <div className="row mb-3">
                 <div className="col-lg-9 offset-lg-3">
                   <button type="submit" className="btn btn-primary">
-                    Add Team Member
+                    {
+                      operation === "edit"
+                        ? "Update Team Member"
+                        : "Add Team Member"
+                    }
                   </button>
                 </div>
               </div>
