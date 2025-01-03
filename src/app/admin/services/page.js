@@ -25,6 +25,7 @@ const page = () => {
                   title="All Services"
                   tableHeader={["Service Name", "Service Description", "Service Category", "Actions"]}
                   tableData={services?.data}
+                  rootPath="service"
             />
       )
 }

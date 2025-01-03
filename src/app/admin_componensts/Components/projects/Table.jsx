@@ -1,3 +1,4 @@
+import useDeleteData from "@/API/useDeleteData.api";
 import { useRouter } from "next/navigation";
 import { AiFillEdit } from "react-icons/ai";
 import { FaTrash } from "react-icons/fa";
@@ -5,16 +6,18 @@ import { FaTrash } from "react-icons/fa";
 const Table = ({
   tableHeader = ["Name", "Description", "Type", "Actions"],
   tableData = [],
+  rootPath ,
 }) => {
   const router = useRouter();
 
-  const handleAction = ({ action, id }) => {
+  const handleAction = async ({ action, id }) => {
     switch (action) {
       case "edit":
         router.push(`/admin/projects/edit/${id}`);
         break;
       case "delete":
         console.log("Delete", id);
+        await useDeleteData(`${rootPath}`, id);
         break;
       default:
         break;

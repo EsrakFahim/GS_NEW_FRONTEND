@@ -25,6 +25,7 @@ const page = () => {
                   title="All Team Member"
                   tableHeader={["Name", "Bio", "Experience", "Actions"]}
                   tableData={members?.data}
+                  rootPath="team-member"
             />
       )
 }

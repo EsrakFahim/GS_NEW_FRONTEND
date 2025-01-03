@@ -4,6 +4,7 @@ export const TableContainer = ({
   title = "Show All in table",
   tableHeader,
   tableData,
+  rootPath
 }) => {
   return (
     <>
@@ -21,6 +22,7 @@ export const TableContainer = ({
             <Table
               tableHeader={tableHeader}
               tableData={tableData}
+              rootPath={rootPath}
             />
           </div>
         </div>

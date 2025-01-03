@@ -22,6 +22,7 @@ const page = () => {
                   title="All Projects"
                   tableHeader={["Project Title", "Project Description", "Project Type", "Actions"]}
                   tableData={data?.data}
+                  rootPath="projects"
             />
       )
 }
