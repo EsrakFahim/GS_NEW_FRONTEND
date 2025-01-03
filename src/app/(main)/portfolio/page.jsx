@@ -9,7 +9,7 @@ import Spacing from "../../ui/Spacing";
 import { Icon } from "@iconify/react";
 import Loader from "../../ui/Loader/Loader";
 import useFetchDataWithLimit from "../../../API/useFetchDataWithLimit";
-import useFetchDataFromDB from "../../../API/FetchData";
+import { useFetchDataFromDB } from "../../../API/FetchData";
 
 export default function PortfolioPage() {
   const [active, setActive] = useState('all');

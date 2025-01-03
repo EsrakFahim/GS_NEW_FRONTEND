@@ -14,7 +14,7 @@ import TimelineSlider from '../ui/Slider/TimelineSlider';
 import Spacing from '../ui/Spacing';
 import VideoModal from '../ui/VideoModal';
 import Card from '../ui/Card';
-import useFetchDataFromDB from '../../API/FetchData';
+import { useFetchDataFromDB } from '../../API/FetchData';
 import Loader from '../ui/Loader/Loader';
 
 // Hero Social Links
@@ -148,7 +148,7 @@ export default function Home() {
             </Div>
             <Div className="col-xl-8">
               <Div className='row'>
-                {serviceData?.data?.slice(0,5)?.map((service, index) => (
+                {serviceData?.data?.slice(0, 5)?.map((service, index) => (
                   <>
                     {/* Insert empty space based on index to match design */}
                     {index !== 2 && <Div className='col-lg-3 col-sm-6 cs-hidden_mobile'></Div>}

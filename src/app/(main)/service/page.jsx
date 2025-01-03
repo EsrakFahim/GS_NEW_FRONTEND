@@ -9,7 +9,7 @@ import TestimonialSlider from "../../ui/Slider/TestimonialSlider";
 import Spacing from "../../ui/Spacing";
 import Loader from "../../ui/Loader/Loader";
 import { useEffect } from "react";
-import useFetchDataFromDB from "../../../API/FetchData";
+import { useFetchDataFromDB } from "../../../API/FetchData";
 
 export default function ServicesPage() {
   const { data, isLoading, isError } = useFetchDataFromDB('service');

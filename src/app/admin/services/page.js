@@ -1,6 +1,6 @@
 "use client";
 
-import useFetchDataFromDB from '@/API/FetchData';
+import { useFetchDataFromDB } from '@/API/FetchData';
 import { TableContainer } from '@/app/admin_componensts/pages/TableContainer'
 import Loader from '@/app/ui/Loader/Loader';
 import React from 'react'

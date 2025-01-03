@@ -1,5 +1,5 @@
 'use client'
-import useFetchDataFromDB from "../../../API/FetchData";
+import { useFetchDataFromDB } from "../../../API/FetchData";
 import Cta from "../../ui/Cta";
 import Div from "../../ui/Div";
 import Loader from "../../ui/Loader/Loader";

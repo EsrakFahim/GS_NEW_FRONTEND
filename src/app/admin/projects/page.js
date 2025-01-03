@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { TableContainer } from '../../admin_componensts/pages/TableContainer'
-import useFetchDataFromDB from '@/API/FetchData'
+import { useFetchDataFromDB } from '@/API/FetchData'
 import Loader from '@/app/ui/Loader/Loader'
 
 const page = () => {
