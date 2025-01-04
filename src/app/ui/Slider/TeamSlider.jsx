@@ -3,7 +3,7 @@ import React from 'react';
 import Slider from 'react-slick';
 import Div from '../Div';
 import Team from '../Team';
-import useFetchDataFromDB from '../../../API/FetchData';
+import { useFetchDataFromDB } from '@/API/FetchData';
 const teamData = [
   {
     memberImage: '/images/member_1.jpeg',
