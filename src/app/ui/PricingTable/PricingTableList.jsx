@@ -3,7 +3,7 @@ import Section from '../Div';
 import Div from '../Div';
 import PricingTable from '.';
 import Loader from '../Loader/Loader';
-import useFetchDataFromDB from '../../../API/FetchData';
+import { useFetchDataFromDB } from '@/API/FetchData';
 
 export default function PricingTableList() {
   const { data, isLoading, isError } = useFetchDataFromDB('price-plan');
