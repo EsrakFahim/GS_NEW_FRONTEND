@@ -116,6 +116,10 @@ export default function AboutPage() {
             <Image
               width={500}
               height={500}
+              style={{
+                // aspectRatio: '',
+                objectFit: 'fill',
+              }}
               layout="responsive"
               placeholder="blur"
               blurDataURL={defaultBlurDataURL}
@@ -148,10 +152,13 @@ export default function AboutPage() {
             <Div className="cs-image_layer cs-style1">
               <Div className="cs-image_layer_in">
                 <Image
-                  src={whyWeImage || aboutImg4}
+                  src={whyWeImage?.secure_url || aboutImg4}
                   alt="About"
                   width={500}
                   height={500}
+                  style={{
+                    objectFit: "cover",
+                  }}
                   layout="responsive"
                   placeholder="blur"
                   blurDataURL={defaultBlurDataURL}
