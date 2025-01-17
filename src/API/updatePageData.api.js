@@ -1,4 +1,5 @@
 import axios from "axios";
+import toast from "react-hot-toast";
 
 // Function to update a team member
 const updatePageData = async (updatedFields, collection) => {
@@ -18,6 +19,7 @@ const updatePageData = async (updatedFields, collection) => {
             );
 
             console.log("Update successful:", response.data);
+            toast.success("Page data updated successfully!");
             return response.data;
       } catch (error) {
             console.error("Error updating team member:", error.response?.data || error.message);

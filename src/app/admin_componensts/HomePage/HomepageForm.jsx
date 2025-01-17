@@ -1,15 +1,28 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import toast, { Toaster } from "react-hot-toast";
-import { useForm } from 'react-hook-form';
+import { useForm } from "react-hook-form";
 import { createHomepage } from "../../../API/admin.api";
 import { useFetchDataFromDB } from "@/API/FetchData";
 import updatePageData from "@/API/updatePageData.api";
-
+import { Form, Button } from "react-bootstrap";
+import { AiOutlineCloseCircle } from "react-icons/ai";
+import Image from "next/image";
+import axios from "axios";
 
 const HomePageForm = () => {
-  const { data, isLoading, isError } = useFetchDataFromDB('home-page');
+  const { data, isLoading, isError } = useFetchDataFromDB("home-page");
+  const [loadImage, setLoadImage] = useState(false);
+  const [imageSrc, setImageSrc] = useState("");
+  const [imgLiveUrl, setImgLiveUrl] = useState("");
+
+  useEffect(() => {
+    if (data?.data[0]?.bannerImage) {
+      setImageSrc(data.data[0].bannerImage);
+      setImgLiveUrl(data.data[0].bannerImage);
+    }
+  }, [data]);
 
   const {
     register,
@@ -18,83 +31,73 @@ const HomePageForm = () => {
     reset,
   } = useForm();
 
-  const createHomepageEntry = async (data) => {
+  const createHomepageEntry = async (formData) => {
     try {
-      // Creating FormData instance
-      const formData = new FormData();
-      formData.append("title", data.title);
-      formData.append("subTitle", data.subTitle);
-      formData.append("videoText", data.videoText);
-      formData.append("isActive", data.isActive || false);
-
-      // Appending call to action fields
-      formData.append("callToAction.text", data.callToActionText || "");
-      formData.append("callToAction.url", data.callToActionUrl || "");
-
-      // Appending file uploads
-      if (data.videoFile.length > 0) {
-        formData.append("video", data.videoFile[0]);
-      }
-      if (data.bannerImageFile.length > 0) {
-        formData.append("bannerImage", data.bannerImageFile[0]);
-      }
-
       await createHomepage(formData);
       toast.success("Home page entry created successfully!");
       reset();
     } catch (error) {
-      console.log("Error creating home page entry:", error);
+      console.error("Error creating home page entry:", error);
       toast.error("Failed to create home page entry. Please try again.");
     }
   };
 
-  const editHomepageEntry = async (data) => {
+  const editHomepageEntry = async (formData) => {
     try {
-      // Creating FormData instance
-      const formData = new FormData();
-      formData.append("title", data.title);
-      formData.append("subTitle", data.subTitle);
-      formData.append("videoText", data.videoText);
-      formData.append("isActive", data.isActive || false);
-
-      // Appending call to action fields
-      formData.append("callToAction.text", data.callToActionText || "");
-      formData.append("callToAction.url", data.callToActionUrl || "");
-
-      // Appending file uploads
-      if (data.videoFile.length > 0) {
-        formData.append("video", data.videoFile[0]);
-      }
-
-
-      if (data.bannerImageFile.length > 0) {
-        formData.append("bannerImage", data.bannerImageFile[0]);
-      }
-
-      await updatePageData(formData, 'home-page');
+      await updatePageData(formData, "home-page");
       toast.success("Home page entry updated successfully!");
       reset();
     } catch (error) {
-      console.log("Error updating home page entry:", error);
+      console.error("Error updating home page entry:", error);
       toast.error("Failed to update home page entry. Please try again.");
     }
   };
 
+  const onSubmit = async (formData) => {
+    const updatedFormData = { ...formData, bannerImage: imgLiveUrl };
+    const action = data ? editHomepageEntry : createHomepageEntry;
+    await action(updatedFormData);
+  };
 
-  const onSubmit = async (data) => {
-    if (data) {
-      console.log("edit");
-      await editHomepageEntry(data);
-    } else {
-      console.log("create");
-      await createHomepageEntry(data);
+  // Upload image to server and get the image URL
+  const handleImageUrl = async (file) => {
+    setLoadImage(true);
+    const formData = new FormData();
+    formData.append("media", file);
+
+    try {
+      const { data: response } = await axios.post(
+        `${process.env.NEXT_PUBLIC_PRODUCTION_SERVER_API}/media/upload`,
+        formData
+      );
+
+      setImgLiveUrl(response.data.url);
+      toast.success(response.message);
+    } catch (error) {
+      console.error("Image upload failed:", error);
+      toast.error("Image upload failed. Please try again.");
+    } finally {
+      setLoadImage(false);
     }
-  }
+  };
+
+  const handleFileChange = (event) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => setImageSrc(e.target.result);
+      reader.readAsDataURL(file);
+      handleImageUrl(file);
+    }
+  };
+
+  const handleRemoveImage = () => {
+    setImageSrc("");
+    setImgLiveUrl("");
+  };
 
   if (isLoading) return <div>Loading...</div>;
   if (isError) return <div>Error: {isError.message}</div>;
-
-
 
   return (
     <div>
@@ -106,7 +109,7 @@ const HomePageForm = () => {
               {/* Title */}
               <div className="row mb-3">
                 <label htmlFor="title" className="col-form-label col-lg-3">
-                  Title <span style={{ color: "red" }}>*</span>
+                  Title <span className="text-danger">*</span>
                 </label>
                 <div className="col-lg-9">
                   <input
@@ -121,7 +124,7 @@ const HomePageForm = () => {
                     })}
                   />
                   {errors.title && (
-                    <p style={{ color: "red" }}>{errors.title.message}</p>
+                    <p className="text-danger">{errors.title.message}</p>
                   )}
                 </div>
               </div>
@@ -129,7 +132,7 @@ const HomePageForm = () => {
               {/* SubTitle */}
               <div className="row mb-3">
                 <label htmlFor="subTitle" className="col-form-label col-lg-3">
-                  SubTitle <span style={{ color: "red" }}>*</span>
+                  SubTitle <span className="text-danger">*</span>
                 </label>
                 <div className="col-lg-9">
                   <input
@@ -144,7 +147,7 @@ const HomePageForm = () => {
                     })}
                   />
                   {errors.subTitle && (
-                    <p style={{ color: "red" }}>{errors.subTitle.message}</p>
+                    <p className="text-danger">{errors.subTitle.message}</p>
                   )}
                 </div>
               </div>
@@ -152,7 +155,7 @@ const HomePageForm = () => {
               {/* Video Text */}
               <div className="row mb-3">
                 <label htmlFor="videoText" className="col-form-label col-lg-3">
-                  Video Text <span style={{ color: "red" }}>*</span>
+                  Video Text <span className="text-danger">*</span>
                 </label>
                 <div className="col-lg-9">
                   <input
@@ -167,7 +170,7 @@ const HomePageForm = () => {
                     })}
                   />
                   {errors.videoText && (
-                    <p style={{ color: "red" }}>{errors.videoText.message}</p>
+                    <p className="text-danger">{errors.videoText.message}</p>
                   )}
                 </div>
               </div>
@@ -175,46 +178,63 @@ const HomePageForm = () => {
               {/* Video File */}
               <div className="row mb-3">
                 <label htmlFor="videoFile" className="col-form-label col-lg-3">
-                  Video URL <span style={{ color: "red" }}>*</span>
+                  Video URL <span className="text-danger">*</span>
                 </label>
                 <div className="col-lg-9">
                   <input
                     type="url"
                     id="videoFile"
-                    defaultValue={data?.data[0]?.videoFile}
+                    defaultValue={data?.data[0]?.video}
                     className="form-control"
                     {...register("videoFile", {
                       required: "Video file is required",
                     })}
                   />
                   {errors.videoFile && (
-                    <p style={{ color: "red" }}>{errors.videoFile.message}</p>
+                    <p className="text-danger">{errors.videoFile.message}</p>
                   )}
                 </div>
               </div>
 
               {/* Banner Image */}
-              <div className="row mb-3">
-                <label
-                  htmlFor="bannerImageFile"
-                  className="col-form-label col-lg-3"
+              <div className="mb-5 py-5">
+                <Form.Label>Banner or Hero Background Image</Form.Label>
+                <div
+                  className={`rounded border-dashed border-2 border-secondary p-3 d-flex justify-content-center align-items-center ${loadImage ? "opacity-50" : "opacity-100"
+                    }`}
                 >
-                  Banner Image <span style={{ color: "red" }}>*</span>
-                </label>
-                <div className="col-lg-9">
-                  <input
-                    type="file"
-                    id="bannerImageFile"
-                    className="form-control"
-                    {...register("bannerImageFile", {
-                      // required: "Banner image is required",
-                    })}
-                  />
-                  {errors.bannerImageFile && (
-                    <p style={{ color: "red" }}>
-                      {errors.bannerImageFile.message}
-                    </p>
-                  )}
+                  <div className="position-relative d-flex flex-column align-items-center">
+                    {imageSrc ? (
+                      <div className="position-relative">
+                        <Image
+                          src={imageSrc}
+                          alt="Uploaded Image"
+                          width={500}
+                          height={400}
+                          style={{ aspectRatio: "16/9" }}
+                        />
+                        <AiOutlineCloseCircle
+                          onClick={handleRemoveImage}
+                          className="position-absolute top-0 end-0 text-danger cursor-pointer"
+                          style={{ fontSize: "1.5rem" }}
+                        />
+                      </div>
+                    ) : (
+                      <Button
+                        variant="outline-secondary"
+                        onClick={() => document.getElementById("file-upload").click()}
+                      >
+                        Upload your photo
+                      </Button>
+                    )}
+                    <Form.Control
+                      type="file"
+                      id="file-upload"
+                      accept="image/*"
+                      onChange={handleFileChange}
+                      className="d-none"
+                    />
+                  </div>
                 </div>
               </div>
 
@@ -236,7 +256,7 @@ const HomePageForm = () => {
                     {...register("callToActionText", { maxLength: 50 })}
                   />
                   {errors.callToActionText && (
-                    <p style={{ color: "red" }}>
+                    <p className="text-danger">
                       {errors.callToActionText.message}
                     </p>
                   )}
@@ -266,7 +286,7 @@ const HomePageForm = () => {
                     })}
                   />
                   {errors.callToActionUrl && (
-                    <p style={{ color: "red" }}>
+                    <p className="text-danger">
                       {errors.callToActionUrl.message}
                     </p>
                   )}
@@ -292,7 +312,7 @@ const HomePageForm = () => {
               <div className="row mb-3">
                 <div className="col-lg-9 offset-lg-3">
                   <button type="submit" className="btn btn-primary">
-                    Create Home Page Entry
+                    {data ? "Update Home Page Entry" : "Create Home Page Entry"}
                   </button>
                 </div>
               </div>

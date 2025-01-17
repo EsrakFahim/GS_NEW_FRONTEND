@@ -44,8 +44,6 @@ export default function AboutPage() {
   if (isLoading) return <Loader />
   if (isError) return <div>Error</div>
 
-  console.log(data)
-
   const {
     title,
     description,
@@ -117,8 +115,8 @@ export default function AboutPage() {
               width={500}
               height={500}
               style={{
-                // aspectRatio: '',
-                objectFit: 'fill',
+                aspectRatio: '0.8/0.95',
+                objectFit: 'cover',
               }}
               layout="responsive"
               placeholder="blur"
@@ -152,12 +150,13 @@ export default function AboutPage() {
             <Div className="cs-image_layer cs-style1">
               <Div className="cs-image_layer_in">
                 <Image
-                  src={whyWeImage?.secure_url || aboutImg4}
+                  src={whyWeImage?.url || aboutImg4}
                   alt="About"
                   width={500}
                   height={500}
                   style={{
                     objectFit: "cover",
+                    aspectRatio: `${16 / 20}`,
                   }}
                   layout="responsive"
                   placeholder="blur"

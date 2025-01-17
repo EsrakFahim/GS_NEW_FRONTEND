@@ -1,19 +1,27 @@
 "use client";
 
 // eslint-disable-next-line no-unused-vars
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import toast, { Toaster } from "react-hot-toast";
 import { createProject } from "../../../../API/admin.api";
-import { Form, Button } from "react-bootstrap";
+import { Form, Button, Image as BootstrapImage } from "react-bootstrap";
+import axios from "axios";
+import updateData from "@/API/updateData.api";
 
 
 const ProjectForm = ({ initialData, operation }) => {
-  const [projectManager, setProjectManager] = useState([]);
+  // const [projectManager, setProjectManager] = useState([]);
   const [team, setTeam] = useState([]);
   const [tech, setTech] = useState([]);
+  const [projectImages, setProjectImages] = useState([]);
+  const [loadImage, setLoadImage] = useState(false);
 
-  console.log("Initial Data:", initialData);
+  const fileInputRef = useRef(null);
+
+  console.log("projectImages:", projectImages);
+
+  // console.log("Initial Data:", initialData);
 
   const {
     register,
@@ -23,52 +31,46 @@ const ProjectForm = ({ initialData, operation }) => {
     reset,
   } = useForm();
 
-  console.log(projectManager, team, tech);
-
   useEffect(() => {
     if (initialData) {
-      // Set initial form values
       Object.entries(initialData).forEach(([key, value]) => {
-        setValue(key, value);
+        // Format date fields to "YYYY-MM-DD"
+        if (key === "startDate" || key === "endDate") {
+          const formattedDate = value ? new Date(value).toISOString().split("T")[0] : "";
+          setValue(key, formattedDate);
+        } else {
+          setValue(key, value);
+        }
       });
 
-      // Set initial project manager
-      if (initialData.projectManager) {
-        setProjectManager(initialData.projectManager);
-      }
-
-      // Set initial team
-      if (initialData.team) {
-
-        setTeam(initialData.team);
-      }
-
-      // Set initial tech
-      if (initialData.tech) {
-        setTech(initialData.tech);
-      }
-
+      // if (initialData.projectManager) setProjectManager(initialData.projectManager);
+      if (initialData.team) setTeam(initialData.team);
+      if (initialData.tech) setTech(initialData.tech);
+      if (initialData.files) setProjectImages(initialData.files);
     }
   }, [initialData, setValue]);
 
 
+  // console.log("projectImages:", projectImages);
+
+
   // Add Project Manager Field
-  const addProjectManagerField = () => {
-    setProjectManager([...projectManager, ""]);
-  };
+  // const addProjectManagerField = () => {
+  //   setProjectManager([...projectManager, ""]);
+  // };
 
-  const handleProjectManagerChange = (index, value) => {
-    const updatedProjectManager = [...projectManager];
-    updatedProjectManager[index] = value;
-    setProjectManager(updatedProjectManager);
-    setValue("projectManager", updatedProjectManager); // Update form value
-  };
+  // const handleProjectManagerChange = (index, value) => {
+  //   const updatedProjectManager = [...projectManager];
+  //   updatedProjectManager[index] = value;
+  //   setProjectManager(updatedProjectManager);
+  //   setValue("projectManager", updatedProjectManager); // Update form value
+  // };
 
-  const removeProjectManager = (index) => {
-    const updatedProjectManager = projectManager.filter((_, i) => i !== index);
-    setProjectManager(updatedProjectManager);
-    setValue("projectManager", updatedProjectManager); // Update form value
-  };
+  // const removeProjectManager = (index) => {
+  //   const updatedProjectManager = projectManager.filter((_, i) => i !== index);
+  //   setProjectManager(updatedProjectManager);
+  //   setValue("projectManager", updatedProjectManager); // Update form value
+  // };
 
   // Add Team Member Field
   const addTeamMemberField = () => {
@@ -106,16 +108,105 @@ const ProjectForm = ({ initialData, operation }) => {
     setValue("tech", updatedTech); // Update form value
   };
 
+  // Image Field
+  const handleFileChange = (event) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const tempImageUrl = URL.createObjectURL(file);
+
+      setProjectImages((prevState) => [
+        ...prevState,
+        { url: tempImageUrl },
+      ]);
+
+      const tempImageIndex = projectImages.length;
+      handleImageUpload(file, tempImageIndex);
+    }
+  };
+
+  const handleImageUpload = async (file, tempImageIndex) => {
+    setLoadImage(true);
+    const formData = new FormData();
+    formData.append("media", file);
+
+    try {
+      const { data: response } = await axios.post(
+        `${process.env.NEXT_PUBLIC_PRODUCTION_SERVER_API}/media/upload`,
+        formData
+      );
+      if (response.data.url) {
+        setLoadImage(false);
+      }
+
+      setProjectImages((prevState) => {
+        const updatedImages = [...prevState];
+        if (tempImageIndex < updatedImages.length) {
+          updatedImages[tempImageIndex] = { url: response.data.url };
+        } else {
+          updatedImages.push({ url: response.data.url });
+        }
+        return updatedImages;
+      });
+
+      toast.success("Image uploaded successfully!");
+    } catch (error) {
+      toast.error("Image upload failed. Please try again.");
+    }
+  };
+
+  const handleRemoveImage = (index) => {
+    setProjectImages((prevState) =>
+      prevState.filter((_, imgIndex) => imgIndex !== index)
+    );
+  };
+
+  const renderImageField = useMemo(() => (
+    <Form.Group className="mb-3">
+      <Form.Label>About Images (Max 3)</Form.Label>
+      {projectImages.map((image, index) => (
+        <div key={index} className="mb-2 d-flex align-items-center gap-3">
+          <BootstrapImage
+            src={image?.url}
+            alt={`Image ${index + 1}`}
+            width={500}
+            height={320}
+          />
+          <Button
+            variant="danger"
+            onClick={() => handleRemoveImage(index)}
+          >
+            Remove
+          </Button>
+        </div>
+      ))}
+      <Button
+        variant="outline-secondary"
+        onClick={() => fileInputRef.current.click()}
+        disabled={projectImages?.length >= 3}
+      >
+        Add Image
+      </Button>
+      <Form.Control
+        type="file"
+        ref={fileInputRef}
+        onChange={handleFileChange}
+        accept="image/*"
+        className="d-none"
+      />
+    </Form.Group>
+  ), [projectImages]);
+
 
   const handleCreateProject = async (data) => {
 
-    console.log("Data:", data);
-    try {
-      // Create FormData instance
-      const formData = new FormData();
+    console.table(
+      "Creating project with data:",
+      data,
+    )
 
-      // Append form fields to FormData
-      const fields = {
+    try {
+      // const formData = new FormData();
+      const formData = {
         name: data.name,
         description: data.description,
         client: data.client,
@@ -123,35 +214,40 @@ const ProjectForm = ({ initialData, operation }) => {
         status: data.status,
         startDate: data.startDate || null,
         endDate: data.endDate || null,
-        projectManager: projectManager || [], // Ensure `projectManager` is valid
+        projectManager: data.projectManager || "",
         budget: data.budget || 0,
         spent: data.spent || 0,
         livePreview: data.livePreview || "",
         sourceFile: data.sourceFile || "",
         isActive: data.isActive || false,
-        team: team || [], // Ensure `team` is valid
-        tech: tech || [], // Ensure `tech` is valid
+        team: JSON.stringify(team || []), // Serialize arrays
+        tech: JSON.stringify(tech || []), // Serialize arrays
         notes: data.notes || "",
+        projectImages: projectImages || [],
       };
 
       // Append fields to FormData
-      Object.entries(fields).forEach(([key, value]) => {
-        formData.append(key, value);
-      });
+      // Object.entries(fields).forEach(([key, value]) => {
+      //   if (value !== null && value !== undefined) {
+      //     formData.append(key, value);
+      //   }
+      // });
 
-      // Append files (if any)
-      if (data.files && data.files.length > 0) {
-        Array.from(data.files).forEach((file) => formData.append("files", file));
-      }
+      // Append project images
+      // if (projectImages.length > 0) {
+      //   projectImages.forEach((image, index) => {
+      //     if (image.url) {
+      //       // If `image` contains a `File` or `Blob` object
+      //       formData.append(`files[${index}]`, image.file);
+      //     } else {
+      //       console.warn("Skipping invalid image:", image);
+      //     }
+      //   });
+      // };
 
-      // Debugging: Log FormData contents
-      for (const [key, value] of formData.entries()) {
-        console.log(`${key}: ${value}`);
-      }
+      console.log("projectImages:", projectImages);
 
-      console.log("Form data ready for submission:", formData);
-
-      // Submit FormData to API
+      // Uncomment to make API call
       await createProject(formData);
 
       toast.success("Project created successfully!");
@@ -162,9 +258,33 @@ const ProjectForm = ({ initialData, operation }) => {
     }
   };
 
+
   const handleEditProject = async (data) => {
     try {
       // Create FormData instance
+      const formData = {
+        name: data.name,
+        description: data.description,
+        client: data.client,
+        projectType: data.projectType,
+        status: data.status,
+        startDate: data.startDate || null,
+        endDate: data.endDate || null,
+        projectManager: data.projectManager || "",
+        budget: data.budget || 0,
+        spent: data.spent || 0,
+        livePreview: data.livePreview || "",
+        sourceFile: data.sourceFile || "",
+        isActive: data.isActive || false,
+        team: JSON.stringify(team || []), // Serialize arrays
+        tech: JSON.stringify(tech || []), // Serialize arrays
+        notes: data.notes || "",
+        projectImages: projectImages || [],
+      };
+
+      await updateData(initialData._id, formData, "projects");
+
+
     } catch (error) {
       console.error("Error editing project:", error);
       toast.error("Failed to edit project. Please try again.");
@@ -180,6 +300,7 @@ const ProjectForm = ({ initialData, operation }) => {
       await handleCreateProject(data);
     }
   }
+
 
 
 
@@ -319,19 +440,20 @@ const ProjectForm = ({ initialData, operation }) => {
 
               {/* Start Date */}
               <div className="row mb-3">
-                <label htmlFor="startDate" className="col-form-label col-lg-3 ">
+                <label htmlFor="startDate" className="col-form-label col-lg-3">
                   Start Date
                 </label>
                 <div className="col-lg-9">
                   <input
                     type="date"
                     id="startDate"
-                    defaultValue={initialData?.startDate}
+                    defaultValue={initialData?.startDate ? new Date(initialData.startDate).toISOString().split("T")[0] : ""}
                     className="form-control"
                     {...register("startDate")}
                   />
                 </div>
               </div>
+
 
               {/* End Date */}
               <div className="row mb-3">
@@ -350,31 +472,20 @@ const ProjectForm = ({ initialData, operation }) => {
               </div>
 
               {/* Project Manager */}
-              <Form.Group className="mb-3">
-                <Form.Label>Project Managers</Form.Label>
-                {projectManager?.map((service, index) => (
-                  <div key={index} className="d-flex align-items-center mb-2">
-                    <Form.Control
-                      type="text"
-                      autoComplete="off"
-                      placeholder={`Project Managers ${index + 1}`}
-                      value={service}
-                      onChange={(e) => handleProjectManagerChange(index, e.target.value)}
-                      className="me-2"
-                    />
-                    <Button
-                      variant="danger"
-                      onClick={() => removeProjectManager(index)}
-                      disabled={projectManager.length === 1}
-                    >
-                      Remove
-                    </Button>
-                  </div>
-                ))}
-                <Button variant="success" onClick={addProjectManagerField}>
-                  Add more
-                </Button>
-              </Form.Group>
+              <div className="row mb-3">
+                <label htmlFor="endDate" className="col-form-label col-lg-3 ">
+                  Project Manager
+                </label>
+                <div className="col-lg-9">
+                  <input
+                    type="text"
+                    id="projectManager"
+                    defaultValue={initialData?.projectManager}
+                    className="form-control"
+                    {...register("projectManager")}
+                  />
+                </div>
+              </div>
 
               {/* Team */}
               <Form.Group className="mb-3">
@@ -555,7 +666,7 @@ const ProjectForm = ({ initialData, operation }) => {
               </div>
 
               {/* Files */}
-              <div className="row mb-3">
+              {/* <div className="row mb-3">
                 <label htmlFor="files" className="col-form-label col-lg-3 ">
                   Files
                 </label>
@@ -567,7 +678,8 @@ const ProjectForm = ({ initialData, operation }) => {
                     {...register("files")}
                   />
                 </div>
-              </div>
+              </div> */}
+              {renderImageField}
 
               {/* Submit Button */}
               <div className="row mb-3">

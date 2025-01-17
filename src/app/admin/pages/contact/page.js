@@ -1,22 +1,96 @@
 "use client";
 
-import { useForm } from "react-hook-form";
+import { createContactPage } from "@/API/admin.api";
+import { useFetchDataFromDB } from "@/API/FetchData";
+import updateData from "@/API/updateData.api";
+import Loader from "@/app/ui/Loader/Loader";
+import { useEffect, useState } from "react";
+import { set, useForm } from "react-hook-form";
+import toast from "react-hot-toast";
+
 
 const ContactForm = () => {
+      const [loading, setLoading] = useState(false);
+      const { data: ExistContactData, isLoading, isError } = useFetchDataFromDB("contact/social");
+
+      console.log("Contact data:", ExistContactData?.data);
       const {
             register,
             handleSubmit,
+            setValue,
             formState: { errors },
       } = useForm();
 
-      const onSubmit = (data) => {
-            console.log(data);
-            // Handle form submission (e.g., send data to backend)
+      useEffect(() => {
+            if (ExistContactData) {
+                  Object.keys(ExistContactData.data).forEach((key) => {
+                        setValue(key, ExistContactData.data[key]);
+                  });
+            }
+      }, [ExistContactData, setValue]);
+
+      const createContact = async (data) => {
+            setLoading(true);
+            try {
+                  const res = await createContactPage(data);
+                  if (res.status === 200 || res.status === 201) {
+                        toast.success("Contact page created successfully");
+                  } else {
+                        toast.error("Failed to create contact page");
+                  }
+            } catch (error) {
+                  toast.error("An error occurred while creating the contact page");
+            } finally {
+                  setLoading(false);
+            }
       };
+
+      const updateContact = async (data) => {
+            setLoading(true);
+            try {
+                  // Update contact data
+                  console.log("Updating contact data:", data);
+                  const res = await updateData(ExistContactData?.data?._id, data, "contact/social"); // Update contact data
+                  console.log("Response:", res);
+                  if (res.statusCode === 200 || res.statusCode === 201) {
+                        toast.success("Contact page updated successfully");
+                  }
+
+            } catch (error) {
+                  toast.error("An error occurred while updating the contact page");
+            } finally {
+                  setLoading(false);
+            }
+      };
+
+
+      const onSubmit = async (data) => {
+            if (ExistContactData) {
+                  // Update contact data
+                  console.log("Updating contact data:", data);
+                  updateContact(data);
+            } else {
+                  // Create contact data
+                  console.log("Creating contact data:", data);
+                  createContact(data);
+            }
+      }
+
+      if (loading || isLoading) {
+            return <Loader />;
+      }
+
+      if (isError) {
+            return <div>Error fetching data</div>;
+      }
 
       return (
             <div className="container mt-5">
-                  <h2>Contact Form</h2>
+                  <h2>
+                        {
+                              ExistContactData ? "Update Contact" : "Create Contact"
+                        }
+                  </h2>
                   <form onSubmit={handleSubmit(onSubmit)}>
                         <div className="mb-3">
                               <label htmlFor="email" className="form-label">
@@ -132,7 +206,9 @@ const ContactForm = () => {
                         </div>
 
                         <button type="submit" className="btn btn-primary">
-                              Submit
+                              {
+                                    ExistContactData ? "Update Contact" : "Create Contact"
+                              }
                         </button>
                   </form>
             </div>
@@ -140,3 +216,65 @@ const ContactForm = () => {
 };
 
 export default ContactForm;
+
+
+
+/**  
+ ** @Comments Compare this snippet from backend/src/controllers/Contact/updateContact.controller.js:
+**/
+
+/**
+ * ContactForm component renders a contact form with various input fields.
+ * It uses React Hook Form for form handling and validation.
+ * 
+ * @component
+ * @example
+ * return (
+ *   <ContactForm />
+ * )
+ * 
+ * @returns {JSX.Element} The rendered contact form component.
+ * 
+ * @function
+ * @name ContactForm
+ * 
+ * @description
+ * The ContactForm component allows users to submit their contact information, including email, phone number, social media profiles, website, and address. It handles form submission asynchronously and displays success or error messages based on the response.
+ * 
+ * @hook
+ * @name useState
+ * @description Manages the loading state of the form submission.
+ * 
+ * @hook
+ * @name useForm
+ * @description Provides methods for form handling and validation.
+ * 
+ * @async
+ * @function
+ * @name onSubmit
+ * @param {Object} data - The form data submitted by the user.
+ * @description Handles form submission, sends data to the server, and displays appropriate toast messages based on the response.
+ * 
+ * @returns {Promise<void>}
+ * 
+ * @example
+ * onSubmit({ email: 'example@example.com', phone: '1234567890' });
+ * 
+ * @hook
+ * @name useForm
+ * @description Provides methods for form handling and validation.
+ * 
+ * @returns {Object} The form methods and state.
+ * 
+ * @example
+ * const { register, handleSubmit, formState: { errors } } = useForm();
+ * 
+ * @hook
+ * @name useState
+ * @description Manages the loading state of the form submission.
+ * 
+ * @returns {Array} The loading state and the function to update it.
+ * 
+ * @example
+ * const [loading, setLoading] = useState(false);
+ */

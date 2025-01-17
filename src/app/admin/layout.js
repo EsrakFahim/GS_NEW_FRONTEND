@@ -6,6 +6,7 @@ import Header from "../admin_componensts/layout/Header";
 import '../scss/style.scss';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { QueryClient, QueryClientProvider } from "react-query";
+import { Toaster } from "react-hot-toast";
 
 
 
@@ -51,6 +52,7 @@ const RootLayout = ({ children }) => {
                                     </div>
                               </div>
                         </QueryClientProvider>
+                        <Toaster />
                   </body>
             </html>
       );

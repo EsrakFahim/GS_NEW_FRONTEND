@@ -1,5 +1,5 @@
+import HomeSettings from '@/app/admin_componensts/pages/HomeSettings'
 import React from 'react'
-import HomeSettings from '../../../admin_componensts/pages/HomeSettings'
 
 const page = () => {
       return (
