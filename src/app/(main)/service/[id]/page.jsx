@@ -19,8 +19,8 @@ const defaultBlurDataURL =
 
 
 export default function ServiceDetailsPage() {
-  const { serviceSlag } = useParams();
-  const { data, isLoading, isError } = useFetchSingleData('service', serviceSlag);
+  const { id } = useParams();
+  const { data, isLoading, isError } = useFetchSingleData('service', id, null);
 
   const {
     title,
@@ -51,7 +51,7 @@ export default function ServiceDetailsPage() {
       {/* Design Working Process Section */}
       <Div className="container">
         <SectionHeading
-          title='Design working process'
+          title={title}
           subtitle={serverType}
           variant='cs-style1 text-center'
         />

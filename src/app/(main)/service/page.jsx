@@ -64,7 +64,7 @@ export default function ServicesPage() {
                     <Div className="col-lg-3 col-sm-6">
                       <Card
                         title={service.title}
-                        link={`/service/${service.slug}`}
+                        link={`/service/${service?._id}`}
                         src={service.coverImage}
                         alt={service.title}
                         id={service._id}

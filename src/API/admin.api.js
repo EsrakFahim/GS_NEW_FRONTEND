@@ -47,6 +47,14 @@ export const createAboutPage = (aboutPageData) =>
       handleRequest("post", "/about-page", aboutPageData, { "Content-Type": "application/json" });
 
 
+/* 
+      * Create the services page content
+      * @param {Object} servicesPageData - The services page data to create
+*/
+export const createServicesPage = (servicesPageData) =>
+      handleRequest("post", "/service/upload", servicesPageData, { "Content-Type": "application/json" });
+
+
 /**
  * Create the about page content
  * @param {Object} contactPageData - The about page data to create
