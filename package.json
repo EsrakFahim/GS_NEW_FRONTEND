@@ -14,6 +14,8 @@
     "framer": "^2.4.1",
     "full_gs": "file:..",
     "html-react-parser": "^5.1.8",
+    "jodit": "^4.2.50",
+    "jodit-react": "^5.0.10",
     "lightgallery": "^2.7.2",
     "next": "^14.2.17",
     "react": "^18",
@@ -26,6 +28,7 @@
     "react-query": "^3.39.3",
     "react-slick": "^0.30.2",
     "sass": "^1.71.1",
+    "sharp": "^0.33.5",
     "slick-carousel": "^1.8.1",
     "swiper": "^8.4.5"
   },

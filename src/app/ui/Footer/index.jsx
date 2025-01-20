@@ -1,3 +1,5 @@
+"use client";
+
 import React from 'react';
 import Div from '../Div';
 import ContactInfoWidget from '../Widget/ContactInfoWidget';
@@ -5,6 +7,8 @@ import MenuWidget from '../Widget/MenuWidget';
 import Newsletter from '../Widget/Newsletter';
 import SocialWidget from '../Widget/SocialWidget';
 import TextWidget from '../Widget/TextWidget';
+import { useFetchDataFromDB } from '@/API/FetchData';
+import Loader from '../Loader/Loader';
 
 const copyrightLinks = [
   {
@@ -50,6 +54,17 @@ const socialLinks = {
 const date = new Date().getFullYear();
 
 export default function Footer({ copyrightText, logoSrc, logoAlt, text }) {
+  const { data, isLoading, isError } = useFetchDataFromDB('service');
+
+  if (isLoading) {
+    return <Loader />
+  }
+  if (isError) {
+    return <p>Error</p>
+  }
+
+
+
   return (
     <footer className="cs-fooer">
       <Div className="cs-fooer_main">
@@ -67,7 +82,7 @@ export default function Footer({ copyrightText, logoSrc, logoAlt, text }) {
             </Div>
             <Div className="col-lg-3 col-sm-6">
               <Div className="cs-footer_item">
-                <MenuWidget menuItems={serviceMenu} menuHeading="Services" />
+                <MenuWidget menuItems={data?.data} menuHeading="Services" />
               </Div>
             </Div>
             <Div className="col-lg-3 col-sm-6">
@@ -75,7 +90,7 @@ export default function Footer({ copyrightText, logoSrc, logoAlt, text }) {
                 <ContactInfoWidget title="Contact Us" />
               </Div>
             </Div>
-            <Div className="col-lg-3 col-sm-6">
+            {/* <Div className="col-lg-3 col-sm-6">
               <Div className="cs-footer_item">
                 <Newsletter
                   title="Subscribe"
@@ -83,7 +98,7 @@ export default function Footer({ copyrightText, logoSrc, logoAlt, text }) {
                   placeholder="example@gmail.com"
                 />
               </Div>
-            </Div>
+            </Div> */}
           </Div>
         </Div>
       </Div>

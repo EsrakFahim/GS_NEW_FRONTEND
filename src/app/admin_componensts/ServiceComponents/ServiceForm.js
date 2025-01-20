@@ -8,6 +8,7 @@ import { AiOutlineCloseCircle } from "react-icons/ai";
 import toast from "react-hot-toast";
 import { createServicesPage } from "@/API/admin.api";
 import updateData from "@/API/updateData.api";
+import TextEditor from "../Components/TextEditor/TextEditor";
 
 const ServiceForm = ({
       initialData,
@@ -28,6 +29,7 @@ const ServiceForm = ({
       const [imgLiveUrl, setImgLiveUrl] = useState("");
       const [loadImage, setLoadImage] = useState(false);
       const [serviceShowCaseImage, setServiceShowCaseImage] = useState([]);
+      const [description, setDescription] = useState("");
 
       const fileInputRef = useRef(null);
 
@@ -44,6 +46,7 @@ const ServiceForm = ({
                   setImgLiveUrl(initialData.coverImage);
                   setImageSrc(initialData.coverImage);
                   setIncludingServices(initialData.includingServices);
+                  setDescription(initialData.description);
             }
       }, [initialData, setValue]);
 
@@ -79,7 +82,7 @@ const ServiceForm = ({
             const formData = {
                   title: data.title || initialData?.title,
                   subtitle: data.subtitle || initialData?.subtitle,
-                  description: data.description || initialData?.description,
+                  description: description || initialData?.description,
                   serviceType: data.serviceType || initialData?.serviceType,
                   status: data.status || initialData?.status,
                   isFeatured: data.isFeatured || initialData?.isFeatured,
@@ -88,7 +91,6 @@ const ServiceForm = ({
                   includingServices: includingServices || initialData?.includingServices,
             }
 
-            console.log("Form data ready for submission:", formData);
 
             if (operationType === "edit" || initialData?._id) {
                   handleServiceEdit(formData);
@@ -335,16 +337,11 @@ const ServiceForm = ({
 
                   <Form.Group className="mb-3">
                         <Form.Label>Description</Form.Label>
-                        <Form.Control
-                              as="textarea"
-                              rows={3}
+                        <TextEditor
                               placeholder="Enter description"
-                              {...register("description", { required: "Description is required" })}
-                              disabled={loadImage}
+                              content={description}
+                              setContent={setDescription}
                         />
-                        {errors.description && (
-                              <small className="text-danger">{errors.description.message}</small>
-                        )}
                   </Form.Group>
 
                   {serviceCoverImageRender()}

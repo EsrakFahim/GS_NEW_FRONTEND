@@ -17,9 +17,7 @@ export default function ContactInfoWidget({ withIcon, title }) {
               gap: '1rem'
             }}
           >
-            <span>
-              {withIcon ? <span className='cs-accent_color'><Icon icon="material-symbols:add-call-rounded" /></span> : ''}
-            </span>
+              {withIcon && <span className='cs-accent_color'><Icon icon="material-symbols:add-call-rounded" /></span>}
             <span
               style={{
                 fontSize: '1.1rem',
@@ -40,9 +38,7 @@ export default function ContactInfoWidget({ withIcon, title }) {
               gap: '1rem'
             }}
           >
-            <span>
-              {withIcon ? <span className='cs-accent_color'><Icon icon="mdi:envelope" /></span> : ''}
-            </span>
+            {withIcon && <span className='cs-accent_color'><Icon icon="mdi:envelope" /></span>}
             <span
               style={{
                 fontSize: '1.1rem',
@@ -63,9 +59,7 @@ export default function ContactInfoWidget({ withIcon, title }) {
               gap: '1rem'
             }}
           >
-            <span>
-              {withIcon ? <span className='cs-accent_color'><Icon icon="mdi:map-marker" /></span> : ''}
-            </span>
+              {withIcon && <span className='cs-accent_color'><Icon icon="mdi:map-marker" /></span>}
             <span
               style={{
                 fontSize: '1.1rem',

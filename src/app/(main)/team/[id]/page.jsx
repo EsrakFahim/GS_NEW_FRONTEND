@@ -29,8 +29,8 @@ export default function TeamDetails() {
     jobTitle = '',
     socialLinks = {},
   } = data?.data || {}; // Fallback to an empty object if data?.data is undefined
+  const isHTML = /<\/?[a-z][\s\S]*>/i.test(description ? description : '');
 
-  console.log(socialLinks)
 
   if (isLoading) return <Loader />
 
@@ -79,10 +79,20 @@ export default function TeamDetails() {
               </p>
               <Div className="cs-height_25 cs-height_lg_20" />
               <p className="cs-m0">
-                Description:{""} {description}
+                Description:{""} <>
+                  {isHTML ? (
+                    <span
+                      dangerouslySetInnerHTML={{
+                        __html: DOMPurify.sanitize(description),
+                      }}
+                    />
+                  ) : (
+                    <p>{description}</p>
+                  )}
+                </>
               </p>
               <Div className="cs-height_45 cs-height_lg_30" />
-              <SocialWidget 
+              <SocialWidget
                 socialLinks={socialLinks}
               />
             </Div>

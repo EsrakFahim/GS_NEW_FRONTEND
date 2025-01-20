@@ -47,7 +47,7 @@ export default function PortfolioDetailsPage() {
     tech,
     _id,
   } = data?.data || {};
-
+  const isHTML = /<\/?[a-z][\s\S]*>/i.test(description);
 
 
   return (
@@ -68,92 +68,100 @@ export default function PortfolioDetailsPage() {
               subtitle={projectType}
             >
               <Spacing lg='40' md='20' />
-              <p>
-                {description}
-              </p>
-              <Spacing lg='10' md='10' />
-            </SectionHeading>
+          <div>
+            {isHTML ? (
+              <span
+                dangerouslySetInnerHTML={{
+                  __html: DOMPurify.sanitize(description),
+                }}
+              />
+            ) : (
+              <p>{description}</p>
+            )}
+          </div>
+          <Spacing lg='10' md='10' />
+        </SectionHeading>
+      </Div>
+      <Div className="col-lg-5 offset-lg-1">
+        <Spacing lg='60' md='40' />
+        <h2 className='cs-font_30 cs-font_26_sm cs-m0'>Project Info -</h2>
+        <Spacing lg='50' md='30' />
+        <Div className="row">
+          <Div className="col-6">
+            <h3 className='cs-accent_color cs-font_22 cs-font_18_sm cs-m0'>Category:</h3>
+            <p className='cs-m0'>
+              {projectType}
+            </p>
+            <Spacing lg='30' md='30' />
           </Div>
-          <Div className="col-lg-5 offset-lg-1">
-            <Spacing lg='60' md='40' />
-            <h2 className='cs-font_30 cs-font_26_sm cs-m0'>Project Info -</h2>
-            <Spacing lg='50' md='30' />
-            <Div className="row">
-              <Div className="col-6">
-                <h3 className='cs-accent_color cs-font_22 cs-font_18_sm cs-m0'>Category:</h3>
-                <p className='cs-m0'>
-                  {projectType}
-                </p>
-                <Spacing lg='30' md='30' />
-              </Div>
-              <Div className="col-6">
-                <h3 className='cs-accent_color cs-font_22 cs-font_18_sm cs-m0'>
-                  Budget:
-                </h3>
-                <p className='cs-m0'>
-                  {
-                    budget ? budget : 'N/A'
-                  }
-                </p>
-                <Spacing lg='30' md='30' />
-              </Div>
-              <Div className="col-6">
-                <h3 className='cs-accent_color cs-font_22 cs-font_18_sm cs-m0'>Software:</h3>
-                <p className='cs-m0'>
-                  {
-                    tech.join(', ')
-                  }
-                </p>
-                <Spacing lg='30' md='30' />
-              </Div>
-              <Div className="col-6">
-                <h3 className='cs-accent_color cs-font_22 cs-font_18_sm cs-m0'>Dated:</h3>
-                <p className='cs-m0'>
-                  {
-                    startDate ? new Date(startDate).toDateString() : '-'
-                  }
-                </p>
-                <Spacing lg='30' md='30' />
-              </Div>
-              <Div className="col-6">
-                <h3 className='cs-accent_color cs-font_22 cs-font_18_sm cs-m0'>Client:</h3>
-                <p className='cs-m0'>
-                  {
-                    client
-                  }
-                </p>
-                <Spacing lg='30' md='30' />
-              </Div>
-              <Div className="col-6">
-                <h3 className='cs-accent_color cs-font_22 cs-font_18_sm cs-m0'>
-                  Team Member:
-                </h3>
-                <p className='cs-m0'>
-                  {
-                    team.map((item, index) => (
-                      <Link href='#' key={index}>
-                        {item}
-                        {index < team.length - 1 ? ', ' : ''}
-                      </Link>
-                    ))
-                  }
-                </p>
-                <Spacing lg='30' md='30' />
-              </Div>
-              <Div className="col-6">
-                <h3 className='cs-accent_color cs-font_22 cs-font_18_sm cs-m0'>Status:</h3>
-                <p className='cs-m0'>
-                  {
-                    status
-                  }
-                </p>
-                <Spacing lg='30' md='30' />
-              </Div>
-            </Div>
+          <Div className="col-6">
+            <h3 className='cs-accent_color cs-font_22 cs-font_18_sm cs-m0'>
+              Budget:
+            </h3>
+            <p className='cs-m0'>
+              {
+                budget ? budget : 'N/A'
+              }
+            </p>
+            <Spacing lg='30' md='30' />
+          </Div>
+          <Div className="col-6">
+            <h3 className='cs-accent_color cs-font_22 cs-font_18_sm cs-m0'>Software:</h3>
+            <p className='cs-m0'>
+              {
+                tech.join(', ')
+              }
+            </p>
+            <Spacing lg='30' md='30' />
+          </Div>
+          <Div className="col-6">
+            <h3 className='cs-accent_color cs-font_22 cs-font_18_sm cs-m0'>Dated:</h3>
+            <p className='cs-m0'>
+              {
+                startDate ? new Date(startDate).toDateString() : '-'
+              }
+            </p>
+            <Spacing lg='30' md='30' />
+          </Div>
+          <Div className="col-6">
+            <h3 className='cs-accent_color cs-font_22 cs-font_18_sm cs-m0'>Client:</h3>
+            <p className='cs-m0'>
+              {
+                client
+              }
+            </p>
+            <Spacing lg='30' md='30' />
+          </Div>
+          <Div className="col-6">
+            <h3 className='cs-accent_color cs-font_22 cs-font_18_sm cs-m0'>
+              Team Member:
+            </h3>
+            <p className='cs-m0'>
+              {
+                team.map((item, index) => (
+                  <Link href='#' key={index}>
+                    {item}
+                    {index < team.length - 1 ? ', ' : ''}
+                  </Link>
+                ))
+              }
+            </p>
+            <Spacing lg='30' md='30' />
+          </Div>
+          <Div className="col-6">
+            <h3 className='cs-accent_color cs-font_22 cs-font_18_sm cs-m0'>Status:</h3>
+            <p className='cs-m0'>
+              {
+                status
+              }
+            </p>
+            <Spacing lg='30' md='30' />
           </Div>
         </Div>
-        <Spacing lg='65' md='10' />
-        {/* <Div className="cs-page_navigation cs-center">
+      </Div>
+    </Div >
+      <Spacing lg='65' md='10' />
+  {/* <Div className="cs-page_navigation cs-center">
           <Div>
             <Button btnLink='/portfolio/portfolio-details' btnText='Prev Project' variant='cs-type1' />
           </Div>
@@ -161,7 +169,7 @@ export default function PortfolioDetailsPage() {
             <Button btnLink='/portfolio/portfolio-details' btnText='Next Project' />
           </Div>
         </Div> */}
-      </Div>
+    </Div >
       <Spacing lg='145' md='80' />
       <Cta
         title='galaxysparkbd@gmail.com'

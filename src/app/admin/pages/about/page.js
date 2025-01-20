@@ -24,6 +24,7 @@ import { AiOutlineCloseCircle } from "react-icons/ai";
 import updatePageData from "@/API/updatePageData.api";
 import Loader from "@/app/ui/Loader/Loader";
 import { createAboutPage } from "@/API/admin.api";
+import TextEditor from "@/app/admin_componensts/Components/TextEditor/TextEditor";
 
 const Page = () => {
       const { data: aboutData, isLoading } = useFetchDataFromDB("about-page");
@@ -41,6 +42,7 @@ const Page = () => {
 
       const [whyWeImageSrc, setWhyWeImageSrc] = useState("");
       const [loadImage, setLoadImage] = useState(false);
+      const [description, setDescription] = useState("");
       const fileInputRef = useRef();
       const { register, handleSubmit, setValue, formState: { errors } } = useForm();
 
@@ -67,6 +69,7 @@ const Page = () => {
                         isActive: isActive || false,
                         whyWeImage: whyWeImage || "",
                   });
+                  setDescription(description || "");
 
                   setValue("title", title);
                   setValue("description", description);
@@ -263,11 +266,11 @@ const Page = () => {
 
 
       const onSubmit = (data) => {
-            console.log("Form data:", data);
 
             // Merge data from the form and formData, prioritizing `formData` for properties like images and benefits
             const finalData = {
                   ...data,
+                  description,
                   benefits: formData.benefits,
                   images: formData.images,
                   whyWeImage: formData.whyWeImage,
@@ -314,7 +317,7 @@ const Page = () => {
                         {errors.title && <small className="text-danger">{errors.title.message}</small>}
                   </Form.Group>
 
-                  <Form.Group className="mb-3">
+                  {/* <Form.Group className="mb-3">
                         <Form.Label>Description</Form.Label>
                         <Form.Control
                               as="textarea"
@@ -323,7 +326,13 @@ const Page = () => {
                               placeholder="Enter description"
                         />
                         {errors.description && <small className="text-danger">{errors.description.message}</small>}
-                  </Form.Group>
+                  </Form.Group> */}
+
+                  <TextEditor
+                        placeholder="Enter description"
+                        content={description}
+                        setContent={setDescription}
+                  />
 
                   {renderImageField}
 

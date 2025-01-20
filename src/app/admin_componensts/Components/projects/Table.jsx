@@ -31,7 +31,7 @@ const Table = ({
 
     setLoading(true);
     try {
-      await useDeleteData('service', selectedItem._id);
+      await useDeleteData(rootPath, selectedItem._id);
       setTableData((prevData) =>
         prevData.filter((item) => item._id !== selectedItem._id)
       );

@@ -8,6 +8,7 @@ import { createProject } from "../../../../API/admin.api";
 import { Form, Button, Image as BootstrapImage } from "react-bootstrap";
 import axios from "axios";
 import updateData from "@/API/updateData.api";
+import TextEditor from "../TextEditor/TextEditor";
 
 
 const ProjectForm = ({ initialData, operation }) => {
@@ -16,10 +17,9 @@ const ProjectForm = ({ initialData, operation }) => {
   const [tech, setTech] = useState([]);
   const [projectImages, setProjectImages] = useState([]);
   const [loadImage, setLoadImage] = useState(false);
+  const [description, setDescription] = useState("");
 
   const fileInputRef = useRef(null);
-
-  console.log("projectImages:", projectImages);
 
   // console.log("Initial Data:", initialData);
 
@@ -43,34 +43,13 @@ const ProjectForm = ({ initialData, operation }) => {
         }
       });
 
-      // if (initialData.projectManager) setProjectManager(initialData.projectManager);
       if (initialData.team) setTeam(initialData.team);
       if (initialData.tech) setTech(initialData.tech);
       if (initialData.files) setProjectImages(initialData.files);
+      if (initialData.description) setDescription(initialData.description);
     }
   }, [initialData, setValue]);
 
-
-  // console.log("projectImages:", projectImages);
-
-
-  // Add Project Manager Field
-  // const addProjectManagerField = () => {
-  //   setProjectManager([...projectManager, ""]);
-  // };
-
-  // const handleProjectManagerChange = (index, value) => {
-  //   const updatedProjectManager = [...projectManager];
-  //   updatedProjectManager[index] = value;
-  //   setProjectManager(updatedProjectManager);
-  //   setValue("projectManager", updatedProjectManager); // Update form value
-  // };
-
-  // const removeProjectManager = (index) => {
-  //   const updatedProjectManager = projectManager.filter((_, i) => i !== index);
-  //   setProjectManager(updatedProjectManager);
-  //   setValue("projectManager", updatedProjectManager); // Update form value
-  // };
 
   // Add Team Member Field
   const addTeamMemberField = () => {
@@ -164,7 +143,8 @@ const ProjectForm = ({ initialData, operation }) => {
     <Form.Group className="mb-3">
       <Form.Label>About Images (Max 3)</Form.Label>
       {projectImages.map((image, index) => (
-        <div key={index} className="mb-2 d-flex align-items-center gap-3">
+        <div key={index} className={`rounded border-dashed border-2 border-secondary p-3 d-flex justify-content-center align-items-center ${loadImage ? "opacity-50" : "opacity-100"
+          }`}>
           <BootstrapImage
             src={image?.url}
             alt={`Image ${index + 1}`}
@@ -174,6 +154,7 @@ const ProjectForm = ({ initialData, operation }) => {
           <Button
             variant="danger"
             onClick={() => handleRemoveImage(index)}
+            disabled={loadImage} // Disable button while image is being uploaded
           >
             Remove
           </Button>
@@ -182,7 +163,7 @@ const ProjectForm = ({ initialData, operation }) => {
       <Button
         variant="outline-secondary"
         onClick={() => fileInputRef.current.click()}
-        disabled={projectImages?.length >= 3}
+        disabled={projectImages?.length >= 3 || loadImage}
       >
         Add Image
       </Button>
@@ -205,10 +186,9 @@ const ProjectForm = ({ initialData, operation }) => {
     )
 
     try {
-      // const formData = new FormData();
       const formData = {
         name: data.name,
-        description: data.description,
+        description: description,
         client: data.client,
         projectType: data.projectType,
         status: data.status,
@@ -226,30 +206,8 @@ const ProjectForm = ({ initialData, operation }) => {
         projectImages: projectImages || [],
       };
 
-      // Append fields to FormData
-      // Object.entries(fields).forEach(([key, value]) => {
-      //   if (value !== null && value !== undefined) {
-      //     formData.append(key, value);
-      //   }
-      // });
-
-      // Append project images
-      // if (projectImages.length > 0) {
-      //   projectImages.forEach((image, index) => {
-      //     if (image.url) {
-      //       // If `image` contains a `File` or `Blob` object
-      //       formData.append(`files[${index}]`, image.file);
-      //     } else {
-      //       console.warn("Skipping invalid image:", image);
-      //     }
-      //   });
-      // };
-
-      console.log("projectImages:", projectImages);
-
       // Uncomment to make API call
       await createProject(formData);
-
       toast.success("Project created successfully!");
       reset();
     } catch (error) {
@@ -321,6 +279,7 @@ const ProjectForm = ({ initialData, operation }) => {
                     autoComplete="off"
                     type="text"
                     id="name"
+                    disabled={loadImage}
                     defaultValue={initialData?.name}
                     className="form-control"
                     placeholder="Project Name"
@@ -344,19 +303,11 @@ const ProjectForm = ({ initialData, operation }) => {
                   Description <span style={{ color: "red" }}>*</span>
                 </label>
                 <div className="col-lg-9">
-                  <textarea
-                    id="description"
-                    defaultValue={initialData?.description}
-                    className="form-control"
-                    placeholder="Project Description"
-                    {...register("description", {
-                      required: "Description is required",
-                      maxLength: 500,
-                    })}
-                  ></textarea>
-                  {errors.description && (
-                    <p style={{ color: "red" }}>{errors.description.message}</p>
-                  )}
+                  <TextEditor
+                    placeholder="Start typing..."
+                    content={description}
+                    setContent={setDescription}
+                  />
                 </div>
               </div>
 
@@ -368,6 +319,7 @@ const ProjectForm = ({ initialData, operation }) => {
                 <div className="col-lg-9">
                   <input
                     type="text"
+                    disabled={loadImage}
                     defaultValue={initialData?.client}
                     autoComplete="off"
                     id="client"
@@ -392,6 +344,7 @@ const ProjectForm = ({ initialData, operation }) => {
                 <div className="col-lg-9">
                   <select
                     id="projectType"
+                    disabled={loadImage}
                     defaultValue={initialData?.projectType}
                     className="form-select"
                     {...register("projectType", {
@@ -421,6 +374,7 @@ const ProjectForm = ({ initialData, operation }) => {
                 <div className="col-lg-9">
                   <select
                     id="status"
+                    disabled={loadImage}
                     defaultValue={initialData?.status}
                     className="form-select"
                     {...register("status", { required: "Status is required" })}
@@ -446,6 +400,7 @@ const ProjectForm = ({ initialData, operation }) => {
                 <div className="col-lg-9">
                   <input
                     type="date"
+                    disabled={loadImage}
                     id="startDate"
                     defaultValue={initialData?.startDate ? new Date(initialData.startDate).toISOString().split("T")[0] : ""}
                     className="form-control"
@@ -463,6 +418,7 @@ const ProjectForm = ({ initialData, operation }) => {
                 <div className="col-lg-9">
                   <input
                     type="date"
+                    disabled={loadImage}
                     id="endDate"
                     defaultValue={initialData?.endDate}
                     className="form-control"
@@ -479,6 +435,7 @@ const ProjectForm = ({ initialData, operation }) => {
                 <div className="col-lg-9">
                   <input
                     type="text"
+                    disabled={loadImage}
                     id="projectManager"
                     defaultValue={initialData?.projectManager}
                     className="form-control"
@@ -494,6 +451,7 @@ const ProjectForm = ({ initialData, operation }) => {
                   <div key={index} className="d-flex align-items-center mb-2">
                     <Form.Control
                       type="text"
+                      disabled={loadImage}
                       autoComplete="off"
                       placeholder={`Team Member ${index + 1}`}
                       value={service}
@@ -509,7 +467,11 @@ const ProjectForm = ({ initialData, operation }) => {
                     </Button>
                   </div>
                 ))}
-                <Button variant="success" onClick={addTeamMemberField}>
+                <Button
+                  variant="success"
+                  onClick={addTeamMemberField}
+                  disabled={loadImage}
+                >
                   Add more
                 </Button>
               </Form.Group>
@@ -523,6 +485,7 @@ const ProjectForm = ({ initialData, operation }) => {
                   <input
                     type="number"
                     id="budget"
+                    disabled={loadImage}
                     defaultValue={initialData?.budget}
                     className="form-control"
                     placeholder="0"
@@ -541,6 +504,7 @@ const ProjectForm = ({ initialData, operation }) => {
                   <input
                     type="number"
                     id="spent"
+                    disabled={loadImage}
                     defaultValue={initialData?.spent}
                     className="form-control"
                     placeholder="0"
@@ -558,6 +522,7 @@ const ProjectForm = ({ initialData, operation }) => {
                     <Form.Control
                       type="text"
                       autoComplete="off"
+                      disabled={loadImage}
                       placeholder={`Tech ${index + 1}`}
                       value={service}
                       onChange={(e) => handleTechChange(index, e.target.value)}
@@ -566,13 +531,17 @@ const ProjectForm = ({ initialData, operation }) => {
                     <Button
                       variant="danger"
                       onClick={() => removeTechField(index)}
-                      disabled={tech.length === 1}
+                      disabled={tech.length === 1 || loadImage}
                     >
                       Remove
                     </Button>
                   </div>
                 ))}
-                <Button variant="success" onClick={addTechField}>
+                <Button
+                  variant="success"
+                  onClick={addTechField}
+                  disabled={loadImage}
+                >
                   Add more
                 </Button>
               </Form.Group>
@@ -585,6 +554,7 @@ const ProjectForm = ({ initialData, operation }) => {
                 <div className="col-lg-9">
                   <textarea
                     id="notes"
+                    disabled={loadImage}
                     defaultValue={initialData?.notes}
                     className="form-control"
                     {...register("notes")}
@@ -606,6 +576,7 @@ const ProjectForm = ({ initialData, operation }) => {
                     defaultValue={initialData?.livePreview}
                     autoComplete="off"
                     id="livePreview"
+                    disabled={loadImage}
                     className="form-control"
                     placeholder="https://example.com"
                     {...register("livePreview", {
@@ -633,6 +604,7 @@ const ProjectForm = ({ initialData, operation }) => {
                   <input
                     type="url"
                     autoComplete="off"
+                    disabled={loadImage}
                     id="sourceFile"
                     className="form-control"
                     defaultValue={initialData?.sourceFile}
@@ -658,6 +630,7 @@ const ProjectForm = ({ initialData, operation }) => {
                 <div className="col-lg-9">
                   <input
                     type="checkbox"
+                    disabled={loadImage}
                     defaultChecked={initialData?.isActive}
                     id="isActive"
                     {...register("isActive")}
@@ -684,7 +657,11 @@ const ProjectForm = ({ initialData, operation }) => {
               {/* Submit Button */}
               <div className="row mb-3">
                 <div className="col-lg-9 offset-lg-3">
-                  <button type="submit" className="btn btn-primary">
+                  <button
+                    type="submit"
+                    className="btn btn-primary"
+                    disabled={loadImage}
+                  >
                     {
                       operation === "edit" ? "Edit Project" : "Create Project"
                     }

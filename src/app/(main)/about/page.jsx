@@ -53,6 +53,8 @@ export default function AboutPage() {
     whyWeImage,
     benefits,
   } = data?.data[0] || {}
+  const isHTML = /<\/?[a-z][\s\S]*>/i.test(description);
+
 
   return (
     <>
@@ -75,9 +77,17 @@ export default function AboutPage() {
             >
               <Spacing lg="30" md="20" />
               <p className="cs-m0">
-                {
-                  description
-                }
+                <div>
+                  {isHTML ? (
+                    <span
+                      dangerouslySetInnerHTML={{
+                        __html: DOMPurify.sanitize(description),
+                      }}
+                    />
+                  ) : (
+                    <p>{description}</p>
+                  )}
+                </div>
               </p>
               <Spacing lg="30" md="30" />
               <Div className="cs-separator cs-accent_bg"></Div>

@@ -12,6 +12,7 @@ import Image from "next/image";
 import { useParams } from "next/navigation";
 import Loader from "../../../ui/Loader/Loader";
 import useFetchSingleData from "../../../../API/FetchSingleData";
+import { useEffect } from "react";
 
 const defaultBlurDataURL =
   'data:image/svg+xml;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABWElEQVR42pWSv0oDQRCEv6cC8RFqooYuwih7axdrKqWskfQFX0B7+Bm/g2zljBZNIBm8s3BspUcqNgpGCLzKSmJz0kCYxZvH/+8eYuvYYzzPQgBT4AngDC+FXAJ25ihPoAmD+Mw0L0DHRHnAJHgAFgNeTTnCTYCoEAW8DNEw7HBWh98UqqBx4F4VtceW7Ae3BepGQWBYFZ+H1gCp8UBowXXAWLBvL8jQSCFblsP+S2PYWuYN4GaMRBodQa7wOcY3dm6bplx3jwAlhnsKOBdVYhve2w1NC7RNjjDwEPvwjqaPxtcOkZGkaCC8vssoZ4h9BLXrHt1UimViJjRLNzGpHTD7pbU26tCdUkt8FWN0r+n7OH7XxYc9HK4OxFNjmZYJRuB9DZJ8xWus9aQETaGQnkL/bvL87dF7VW1ve1+MwAAAABJRU5ErkJggg==';
@@ -33,6 +34,13 @@ export default function ServiceDetailsPage() {
     includingServices,
     serverType,
   } = data?.data || {};
+
+  useEffect(() => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+  }, []);
 
   if (isLoading) return <Loader />;
   if (isError) return <p>Something went wrong. Please try again later.</p>;
@@ -104,11 +112,11 @@ export default function ServiceDetailsPage() {
             {/* Render Services in Columns */}
             <Div className="row">
               {Array.isArray(includingServices) && includingServices.length > 0 ? (
-                [...Array(Math.ceil(includingServices.length / 6))].map((_, colIndex) => (
+                [...Array(Math.ceil(includingServices.length / 6))]?.map((_, colIndex) => (
                   <Div className="col-lg-6" key={colIndex}>
                     {includingServices
-                      .slice(colIndex * 6, (colIndex + 1) * 6)
-                      .map((service, index) => (
+                      ?.slice(colIndex * 6, (colIndex + 1) * 6)
+                      ?.map((service, index) => (
                         <>
                           <Button
                             key={index}

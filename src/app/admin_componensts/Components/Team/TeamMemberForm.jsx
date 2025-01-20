@@ -1,11 +1,12 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import toast, { Toaster } from "react-hot-toast";
 import { addTeamMember } from "../../../../API/admin.api";
 import Image from "next/image";
 import updateData from "@/API/updateData.api";
+import TextEditor from "../TextEditor/TextEditor";
 
 const TeamMemberForm = (
   {
@@ -18,7 +19,17 @@ const TeamMemberForm = (
     handleSubmit,
     formState: { errors },
     reset,
+    setValue
   } = useForm();
+  const [description, setDescription] = useState("");
+
+  useEffect(()=>{
+    if(initialData?.description){
+      setDescription(initialData?.description)
+      // setValue()
+    }
+
+  },[initialData])
 
 
   // Handle add team member
@@ -96,7 +107,7 @@ const TeamMemberForm = (
         formData.append("avatar", data.avatar[0]);
       }
 
-      const teamData  = await updateData(initialData?._id, formData, services); // Implement this function
+      const teamData = await updateData(initialData?._id, formData, services); // Implement this function
 
       console.log("Update successful:", teamData);
 
@@ -202,19 +213,11 @@ const TeamMemberForm = (
                   Description <span style={{ color: "red" }}>*</span>
                 </label>
                 <div className="col-lg-9">
-                  <textarea
-                    id="description"
-                    defaultValue={initialData?.description}
-                    className="form-control"
-                    placeholder="Description"
-                    {...register("description", {
-                      required: "Description is required",
-                      maxLength: 500,
-                    })}
+                  <TextEditor
+                    placeholder={"Enter description here"}
+                    content={description}
+                    setContent={setDescription}
                   />
-                  {errors.description && (
-                    <p style={{ color: "red" }}>{errors.description.message}</p>
-                  )}
                 </div>
               </div>
 
